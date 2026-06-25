@@ -186,13 +186,6 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
     // 1. Send via Socket
     socketService.sendMessage(selectedTicket._id, 'support', text);
 
-    // 2. Optimistic UI render
-    const tempMsg: Message = {
-      sender: 'support',
-      text,
-      createdAt: new Date().toISOString()
-    };
-    setMessages(prev => [...prev, tempMsg]);
     setReplyText('');
   };
 
