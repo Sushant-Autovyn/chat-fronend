@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Menu, Sun, Moon, Bell, Shield, User, LogOut } from 'lucide-react';
+import { Menu, Sun, Moon, Shield, User, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
         )}
       </div>
 
-      {/* Right section: Theme, Alerts, Profile */}
+      {/* Right section: Theme, Profile */}
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {/* Dark/Light mode toggle */}
         <button
@@ -44,20 +44,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
             <Moon className="h-5 w-5 text-indigo-600" />
           )}
         </button>
-
-        {/* Notifications */}
-        <div className="relative">
-          <button
-            className="rounded-xl p-2.5 bg-muted/60 text-muted-foreground hover:text-foreground border border-border/40 hover:bg-muted transition-all duration-200"
-            title="Notifications"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-            </span>
-          </button>
-        </div>
 
         {/* Profile Dropdown */}
         <div className="relative">
@@ -88,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                 </div>
                 <div className="py-1.5">
                   <a
-                    href={user?.role === 'admin' ? '/admin/settings' : '/agent/profile'}
+                    href={user?.role === 'admin' ? '/admin/dashboard' : '/agent/profile'}
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm hover:bg-muted transition-colors"
                   >

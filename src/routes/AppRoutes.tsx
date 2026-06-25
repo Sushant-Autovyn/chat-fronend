@@ -13,8 +13,6 @@ import CustomerManagement from '../admin/CustomerManagement';
 import Analytics from '../admin/Analytics';
 import KnowledgeBase from '../admin/KnowledgeBase';
 import DepartmentManagement from '../admin/DepartmentManagement';
-import AuditLogs from '../admin/AuditLogs';
-import Settings from '../admin/Settings';
 
 // Agent Views
 import AgentLayout from '../agent/AgentLayout';
@@ -48,8 +46,6 @@ const AppRoutes: React.FC = () => {
         <Route path="analytics" element={<Analytics />} />
         <Route path="reports" element={<Analytics />} /> {/* Reuses analytics for report summaries */}
         <Route path="knowledge-base" element={<KnowledgeBase />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="audit-logs" element={<AuditLogs />} />
       </Route>
 
       {/* Agent Panel (Protected & RBAC-guarded) */}

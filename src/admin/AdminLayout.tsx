@@ -21,7 +21,6 @@ const AdminLayout: React.FC = () => {
       reports: 'Performance Reports',
       'knowledge-base': 'Knowledge Base (FAQ)',
       settings: 'System Preferences',
-      'audit-logs': 'Security Audit Trail',
     };
     return titles[path] || 'Admin Panel';
   };

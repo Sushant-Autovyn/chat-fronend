@@ -10,8 +10,6 @@ import {
   Building,
   BarChart3,
   BookOpen,
-  Settings,
-  ShieldAlert,
   LogOut,
   MessageSquare,
   MessageCircle,
@@ -41,8 +39,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { to: '/admin/departments', label: 'Departments', icon: Building },
     { to: '/admin/reports', label: 'Reports', icon: FileText },
     { to: '/admin/knowledge-base', label: 'Knowledge Base', icon: BookOpen },
-    { to: '/admin/settings', label: 'Settings', icon: Settings },
-    { to: '/admin/audit-logs', label: 'Audit Logs', icon: ShieldAlert },
   ];
 
   const agentLinks = [
