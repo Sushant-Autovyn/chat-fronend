@@ -3,7 +3,7 @@ import { customerService, ticketService, Customer, Ticket } from '../services/ap
 import Table from '../components/Table';
 import Modal from '../components/Modal';
 import { useNotification } from '../notifications/NotificationProvider';
-import { Search, Ban, UserCheck, FileText, History, ShieldAlert, Check } from 'lucide-react';
+import { Search, Ban, UserCheck, FileText, History, Trash2 } from 'lucide-react';
 
 const CustomerManagement: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -115,6 +115,30 @@ const CustomerManagement: React.FC = () => {
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error('Error saving customer notes:', err);
+    }
+  };
+
+  // Delete Customer
+  const handleDeleteCustomer = async (customer: Customer) => {
+    const confirmed = await confirm(
+      `Are you sure you want to delete customer "${customer.name}" (${customer.email})? This will hide the customer from the directory.`,
+      {
+        title: 'Delete customer',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        intent: 'danger'
+      }
+    );
+
+    if (!confirmed) return;
+
+    try {
+      customerService.deleteCustomer(customer.email);
+      setSuccessMessage(`Deleted customer ${customer.name}.`);
+      loadCustomerData();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Error deleting customer:', err);
     }
   };
 
@@ -250,6 +274,15 @@ const CustomerManagement: React.FC = () => {
                   ) : (
                     <UserCheck className="h-4.5 w-4.5" />
                   )}
+                </button>
+
+                {/* Delete */}
+                <button
+                  onClick={() => handleDeleteCustomer(customer)}
+                  className="rounded-lg p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-500/10 transition-colors"
+                  title="Delete customer"
+                >
+                  <Trash2 className="h-4.5 w-4.5" />
                 </button>
               </div>
             </td>

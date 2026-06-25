@@ -402,8 +402,24 @@ export const customerService = {
     return JSON.parse(localStorage.getItem('enterprise_customers') || '[]');
   },
 
+  getDeletedCustomers: (): string[] => {
+    return JSON.parse(localStorage.getItem('enterprise_deleted_customers') || '[]');
+  },
+
   addOrUpdateCustomerFromTicket: (ticket: Ticket): Customer => {
     const customers = customerService.getCustomers();
+    const deletedCustomers = customerService.getDeletedCustomers();
+    if (deletedCustomers.includes(ticket.email.toLowerCase())) {
+      return {
+        email: ticket.email,
+        name: ticket.name,
+        status: 'active',
+        notes: '',
+        totalChats: 1,
+        lastActive: new Date().toISOString()
+      };
+    }
+
     const index = customers.findIndex(c => c.email.toLowerCase() === ticket.email.toLowerCase());
 
     if (index === -1) {
@@ -448,6 +464,23 @@ export const customerService = {
     customers[index].notes = notes;
     localStorage.setItem('enterprise_customers', JSON.stringify(customers));
     return customers[index];
+  },
+
+  deleteCustomer: (email: string): void => {
+    const normalizedEmail = email.toLowerCase();
+    const customers = customerService.getCustomers();
+    const filteredCustomers = customers.filter(c => c.email.toLowerCase() !== normalizedEmail);
+    localStorage.setItem('enterprise_customers', JSON.stringify(filteredCustomers));
+
+    const deletedCustomers = customerService.getDeletedCustomers();
+    if (!deletedCustomers.includes(normalizedEmail)) {
+      localStorage.setItem(
+        'enterprise_deleted_customers',
+        JSON.stringify([...deletedCustomers, normalizedEmail])
+      );
+    }
+
+    logActivity(`Customer ${email} deleted`, 'System Administrator', 'admin');
   }
 };
 
