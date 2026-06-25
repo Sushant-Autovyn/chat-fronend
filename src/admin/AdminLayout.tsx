@@ -36,8 +36,8 @@ const AdminLayout: React.FC = () => {
         <Header onMenuToggle={() => setSidebarOpen(true)} title={getPageTitle()} />
 
         {/* Scrollable Sub-view Outlet */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 scrollbar-thin">
-          <div className="mx-auto max-w-7xl animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-5 scrollbar-thin">
+          <div className="mx-auto w-full max-w-[1600px] animate-fade-in">
             <Outlet />
           </div>
         </main>
