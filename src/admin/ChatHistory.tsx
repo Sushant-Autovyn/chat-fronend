@@ -102,69 +102,59 @@ const ChatHistory: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Conversation Archives</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Browse, filter, and inspect transcripts of all active and resolved support chat sessions.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-base font-semibold text-foreground">Conversation Archives</h1>
+          <p className="text-[12px] text-muted-foreground mt-0.5">Browse and inspect transcripts of all support sessions.</p>
+        </div>
       </div>
 
       {/* Filter Toolbar */}
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 bg-card p-4 rounded-2xl border border-border">
-        {/* Customer Search */}
+      <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-4 bg-card p-3 rounded-lg border border-border">
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-muted-foreground pointer-events-none">
-            <Search className="h-4 w-4" />
-          </span>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             value={emailSearch}
             onChange={(e) => setEmailSearch(e.target.value)}
-            placeholder="Customer name or email..."
-            className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-xl text-sm focus:outline-none focus:border-primary placeholder-muted-foreground transition-all"
+            placeholder="Search customer..."
+            className="w-full pl-8 pr-3 py-2 bg-muted/30 border border-border rounded-md text-[12px] focus:outline-none focus:border-indigo-500 placeholder-muted-foreground transition-colors"
           />
         </div>
 
-        {/* Agent Select Filter */}
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-muted-foreground pointer-events-none">
-            <User className="h-4 w-4" />
-          </span>
+          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <select
             value={agentFilter}
             onChange={(e) => setAgentFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-xl text-sm focus:outline-none focus:border-primary text-foreground transition-all cursor-pointer"
+            className="w-full pl-8 pr-3 py-2 bg-muted/30 border border-border rounded-md text-[12px] focus:outline-none focus:border-indigo-500 text-foreground transition-colors cursor-pointer"
           >
-            <option value="all">All Assigned Staff</option>
+            <option value="all">All agents</option>
             {agents.map(a => (
               <option key={a.id} value={a.id}>{a.name} ({a.department})</option>
             ))}
           </select>
         </div>
 
-        {/* Status Filter */}
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as any)}
-          className="px-3.5 py-2.5 bg-muted/30 border border-border rounded-xl text-sm focus:outline-none focus:border-primary text-foreground transition-all cursor-pointer"
+          className="px-3 py-2 bg-muted/30 border border-border rounded-md text-[12px] focus:outline-none focus:border-indigo-500 text-foreground transition-colors cursor-pointer"
         >
-          <option value="all">All Statuses</option>
-          <option value="pending">Pending Queue</option>
-          <option value="solved">Solved / Archived</option>
+          <option value="all">All statuses</option>
+          <option value="pending">Open</option>
+          <option value="solved">Resolved</option>
         </select>
 
-        {/* Date Filter */}
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-muted-foreground pointer-events-none">
-            <Calendar className="h-4 w-4" />
-          </span>
+          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <input
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-xl text-sm focus:outline-none focus:border-primary text-foreground transition-all cursor-pointer"
+            className="w-full pl-8 pr-3 py-2 bg-muted/30 border border-border rounded-md text-[12px] focus:outline-none focus:border-indigo-500 text-foreground transition-colors cursor-pointer"
           />
         </div>
       </div>
@@ -185,7 +175,7 @@ const ChatHistory: React.FC = () => {
           return (
             <tr key={ticket._id} className="hover:bg-muted/10 transition-colors">
               {/* Customer */}
-              <td className="px-6 py-4.5">
+              <td className="px-4 py-3">
                 <div>
                   <span className="block font-semibold text-foreground">{ticket.name}</span>
                   <span className="block text-xs text-muted-foreground truncate max-w-[180px]">{ticket.email}</span>
@@ -193,25 +183,25 @@ const ChatHistory: React.FC = () => {
               </td>
 
               {/* Assigned Agent */}
-              <td className="px-6 py-4.5">
+              <td className="px-4 py-3">
                 <span className={`font-semibold ${agent.name === 'Unassigned' ? 'text-amber-500' : 'text-foreground'}`}>
                   {agent.name}
                 </span>
               </td>
 
               {/* Created Date */}
-              <td className="px-6 py-4.5 text-xs text-muted-foreground">
+              <td className="px-4 py-3 text-xs text-muted-foreground">
                 {new Date(ticket.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
               </td>
 
               {/* Chat Duration */}
-              <td className="px-6 py-4.5 text-xs font-semibold text-muted-foreground">
+              <td className="px-4 py-3 text-xs font-semibold text-muted-foreground">
                 {duration}
               </td>
 
               {/* Status */}
-              <td className="px-6 py-4.5">
-                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold leading-none ${
+              <td className="px-4 py-3">
+                <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold ${
                   ticket.status === 'pending'
                     ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                     : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
@@ -222,7 +212,7 @@ const ChatHistory: React.FC = () => {
               </td>
 
               {/* Actions */}
-              <td className="px-6 py-4.5">
+              <td className="px-4 py-3">
                 <button
                   onClick={() => handleOpenTranscript(ticket)}
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline hover:text-primary/80 transition-colors"
@@ -244,9 +234,9 @@ const ChatHistory: React.FC = () => {
         size="lg"
       >
         {selectedTicket && (
-          <div className="space-y-6 select-text">
+          <div className="space-y-4 select-text">
             {/* Meta Summary Grid */}
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-4 p-4 rounded-xl bg-muted/30 border border-border/80 text-sm">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-4 p-3 rounded-lg bg-muted/20 border border-border text-sm">
               <div>
                 <span className="block text-[10px] uppercase font-bold text-muted-foreground">Customer</span>
                 <span className="block font-semibold mt-0.5 text-foreground">{selectedTicket.name}</span>
@@ -280,13 +270,13 @@ const ChatHistory: React.FC = () => {
             </div>
 
             {/* Customer initial issue section */}
-            <div className="p-4 rounded-xl border border-dashed border-border/80 bg-muted/10">
-              <span className="block text-[10px] uppercase font-bold text-muted-foreground">Initial Submission Issue</span>
-              <p className="mt-1 text-sm font-medium text-foreground">{selectedTicket.issue}</p>
+            <div className="p-3 rounded-lg border border-border bg-muted/10">
+              <span className="block text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Initial Issue</span>
+              <p className="mt-1 text-[12px] text-foreground">{selectedTicket.issue}</p>
             </div>
 
             {/* Message transcript list */}
-            <div className="space-y-4 max-h-80 overflow-y-auto p-4 rounded-xl border border-border bg-slate-50/40 dark:bg-slate-950/10 scrollbar-thin">
+            <div className="space-y-3 max-h-72 overflow-y-auto p-3 rounded-lg border border-border bg-muted/5 scrollbar-thin">
               {messagesLoading ? (
                 <div className="flex flex-col items-center justify-center py-10 text-xs text-muted-foreground animate-pulse gap-2">
                   <span className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></span>
@@ -339,9 +329,9 @@ const ChatHistory: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/95 transition-all shadow-glow-primary active:scale-[0.98]"
+                className="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-[12px] font-semibold hover:bg-indigo-700 transition-colors"
               >
-                Close Audit Window
+                Close
               </button>
             </div>
           </div>

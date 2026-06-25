@@ -10,12 +10,11 @@ import {
   Building,
   LogOut,
   MessageSquare,
-  MessageCircle,
   User,
   Shield,
   FileText,
-  Menu,
-  X
+  X,
+  ChevronRight
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -41,52 +40,49 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const agentLinks = [
     { to: '/agent/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/agent/my-chats', label: 'My Chats', icon: MessageSquare },
-    { to: '/agent/active-conversation', label: 'Active Conversation', icon: MessageCircle },
     { to: '/agent/chat-history', label: 'Chat History', icon: History },
     { to: '/agent/profile', label: 'Profile', icon: User },
   ];
 
   const links = role === 'admin' ? adminLinks : agentLinks;
+  const initials = user?.name?.substring(0, 2).toUpperCase() ?? '??';
 
   return (
     <>
-      {/* Mobile Backdrop */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-900 border-r border-slate-800 text-white transition-all duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-[#0f1117] border-r border-white/[0.06] transition-transform duration-200 lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Header/Logo */}
-        <div className="flex h-16 items-center justify-between px-6 border-b border-slate-800 shrink-0">
+        {/* Logo */}
+        <div className="flex h-14 items-center justify-between px-4 border-b border-white/[0.06] shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-glow-primary">
-              <Shield className="h-5 w-5 text-white" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-600">
+              <Shield className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              Support Desk
-            </span>
+            <span className="text-[13px] font-semibold text-white tracking-tight">Support Desk</span>
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="rounded-lg p-1.5 hover:bg-slate-800 lg:hidden text-slate-400 hover:text-white transition-colors"
+            className="rounded-md p-1 text-white/40 hover:text-white hover:bg-white/10 transition-colors lg:hidden"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 space-y-1.5 overflow-y-auto px-4 py-6 scrollbar-thin">
-          <div className="mb-4 px-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            {role === 'admin' ? 'Administration' : 'Support Desk'}
-          </div>
-          
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+          <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+            {role === 'admin' ? 'Administration' : 'Workspace'}
+          </p>
+
           {links.map((link) => {
             const Icon = link.icon;
             return (
@@ -95,42 +91,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                 to={link.to}
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 group ${
+                  `flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors group ${
                     isActive
-                      ? 'bg-primary text-white shadow-glow-primary'
-                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-white/55 hover:bg-white/8 hover:text-white'
                   }`
                 }
               >
-                <Icon className="h-5 w-5 shrink-0 transition-transform group-hover:scale-105" />
+                <Icon className="h-4 w-4 shrink-0" />
                 <span>{link.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
-        {/* User Footer Card & Logout */}
-        <div className="border-t border-slate-800 p-4 shrink-0 bg-slate-950/30">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary border border-primary/30 font-bold text-sm">
-              {user?.name.substring(0, 2).toUpperCase()}
+        {/* User footer */}
+        <div className="border-t border-white/[0.06] p-3 shrink-0">
+          <div className="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-white/8 transition-colors group">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 font-bold text-[10px] shrink-0">
+              {initials}
             </div>
-            <div className="overflow-hidden">
-              <span className="block text-sm font-semibold truncate text-white">{user?.name}</span>
-              <span className="block text-xs truncate text-slate-400 capitalize">{role}</span>
+            <div className="flex-1 min-w-0">
+              <span className="block text-[12px] font-semibold text-white truncate">{user?.name}</span>
+              <span className="block text-[10px] text-white/35 capitalize leading-none mt-0.5">{role}</span>
             </div>
+            <button
+              onClick={() => { logout(); navigate('/login', { replace: true }); }}
+              className="rounded-md p-1.5 text-white/30 hover:text-rose-400 hover:bg-rose-500/10 transition-colors opacity-0 group-hover:opacity-100"
+              title="Logout"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
           </div>
-          
-          <button
-            onClick={() => {
-              logout();
-              navigate('/login', { replace: true });
-            }}
-            className="flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-medium text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all duration-200"
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            <span>Logout</span>
-          </button>
         </div>
       </aside>
     </>

@@ -301,31 +301,31 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
         />
       </div>
     )}
-    <div className="flex h-[calc(100vh-140px)] gap-0 lg:gap-6 overflow-hidden select-none">
+    <div className="flex h-[calc(100vh-100px)] gap-0 lg:gap-4 overflow-hidden select-none">
       {/* Left Column: Queue Manager */}
       {!activeOnly && (
-        <div className={`w-full lg:w-96 rounded-2xl border border-border bg-card shadow-sm flex flex-col h-full overflow-hidden shrink-0 ${showChat ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`w-full lg:w-72 rounded-lg border border-border bg-card flex flex-col h-full overflow-hidden shrink-0 ${showChat ? 'hidden lg:flex' : 'flex'}`}>
           {/* Tabs header */}
-          <div className="grid grid-cols-2 border-b border-border bg-muted/15 shrink-0 p-1 rounded-t-2xl">
+          <div className="grid grid-cols-2 border-b border-border bg-muted/10 shrink-0 p-1">
             <button
               onClick={() => setQueueTab('my')}
-              className={`py-3 text-xs font-bold rounded-xl transition-all ${
+              className={`py-2 text-[12px] font-semibold rounded-md transition-colors ${
                 queueTab === 'my'
-                  ? 'bg-card text-foreground shadow-sm border border-border/40'
+                  ? 'bg-card text-foreground border border-border'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              My Queue ({myQueue.length})
+              Mine ({myQueue.length})
             </button>
             <button
               onClick={() => setQueueTab('unassigned')}
-              className={`py-3 text-xs font-bold rounded-xl transition-all ${
+              className={`py-2 text-[12px] font-semibold rounded-md transition-colors ${
                 queueTab === 'unassigned'
-                  ? 'bg-card text-foreground shadow-sm border border-border/40'
+                  ? 'bg-card text-foreground border border-border'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              General Pool ({unassignedQueue.length})
+              Pool ({unassignedQueue.length})
             </button>
           </div>
 
@@ -362,37 +362,27 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
                   <div
                     key={ticket._id}
                     onClick={() => handleSelectTicket(ticket)}
-                    className={`p-4 text-left cursor-pointer transition-all duration-150 relative ${
+                    className={`px-4 py-3 cursor-pointer transition-colors relative ${
                       isSelected
-                        ? 'bg-primary/5 dark:bg-primary/10 border-l-4 border-l-primary'
-                        : 'hover:bg-muted/30 border-l-4 border-l-transparent'
+                        ? 'bg-indigo-500/8 border-l-2 border-l-indigo-500'
+                        : 'hover:bg-muted/30 border-l-2 border-l-transparent'
                     }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <span className="font-bold text-sm text-foreground truncate max-w-[160px]">{ticket.name}</span>
-                      <span className="text-[10px] text-muted-foreground font-medium">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[12px] font-semibold text-foreground truncate max-w-[140px]">{ticket.name}</span>
+                      <span className="text-[10px] text-muted-foreground shrink-0">
                         {new Date(ticket.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-
-                    <p className="text-xs text-muted-foreground truncate font-medium mt-1.5 pr-3">
-                      {lastMessage}
-                    </p>
-
-                    <div className="mt-3.5 flex justify-between items-center">
-                      <span className="text-[10px] text-muted-foreground font-semibold uppercase bg-muted px-2 py-0.5 rounded border border-border/80">
-                        #{ticket._id.substring(ticket._id.length - 6)}
-                      </span>
-                      
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">{lastMessage}</p>
+                    <div className="mt-2 flex justify-between items-center">
+                      <span className="text-[10px] text-muted-foreground/60 font-mono">#{ticket._id.slice(-6)}</span>
                       {queueTab === 'unassigned' && (
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAcceptChat(ticket._id);
-                          }}
-                          className="bg-primary hover:bg-primary/95 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg shadow-glow-primary hover:-translate-y-0.5 transition-all"
+                          onClick={(e) => { e.stopPropagation(); handleAcceptChat(ticket._id); }}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-semibold px-2 py-1 rounded transition-colors"
                         >
-                          Accept Chat
+                          Accept
                         </button>
                       )}
                     </div>
@@ -405,53 +395,49 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
       )}
 
       {/* Center Column: Live Chat Pane */}
-      <div className={`flex-1 rounded-2xl border border-border bg-card shadow-sm flex flex-col h-full overflow-hidden ${!showChat ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`flex-1 rounded-lg border border-border bg-card flex flex-col h-full overflow-hidden ${!showChat ? 'hidden lg:flex' : 'flex'}`}>
         {selectedTicket ? (
           <>
             {/* Chat header */}
-            <div className="px-4 sm:px-6 py-4 border-b border-border flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-muted/10 shrink-0">
-              <div className="flex items-center gap-3">
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-muted/5 shrink-0 gap-3">
+              <div className="flex items-center gap-2 min-w-0">
                 <button
                   onClick={() => setShowChat(false)}
-                  className="rounded-lg p-1.5 hover:bg-muted lg:hidden text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                  title="Back to queue"
+                  className="rounded-md p-1 hover:bg-muted lg:hidden text-muted-foreground shrink-0"
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-4 w-4" />
                 </button>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-foreground text-sm sm:text-base leading-tight">{selectedTicket.name}</h3>
-                    <span className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[200px]" title={selectedTicket.email}>({selectedTicket.email})</span>
+                    <span className="text-[13px] font-semibold text-foreground">{selectedTicket.name}</span>
+                    <span className="text-[11px] text-muted-foreground truncate max-w-[140px]">{selectedTicket.email}</span>
                     {assignments[selectedTicket._id] === user?.userId && (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold bg-primary/10 text-primary border border-primary/20">
-                        Assigned to Me
+                      <span className="rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 text-[10px] font-semibold">
+                        Assigned
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] font-semibold text-muted-foreground mt-1 uppercase truncate max-w-[250px] sm:max-w-none">
-                    Ticket Reference: #{selectedTicket._id}
-                  </p>
+                  <p className="text-[10px] text-muted-foreground/60 font-mono mt-0.5">#{selectedTicket._id.slice(-12)}</p>
                 </div>
               </div>
 
-              {/* Chat action controls */}
               {selectedTicket.status === 'pending' && (
-                <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+                <div className="shrink-0">
                   {assignments[selectedTicket._id] !== user?.userId ? (
                     <button
                       onClick={() => handleAcceptChat(selectedTicket._id)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold bg-primary hover:bg-primary/95 text-white px-4 py-2.5 rounded-xl shadow-glow-primary hover:-translate-y-0.5 transition-all shrink-0"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md transition-colors"
                     >
-                      <UserCheck className="h-4 w-4" />
-                      <span>Claim Chat Session</span>
+                      <UserCheck className="h-3.5 w-3.5" />
+                      Claim
                     </button>
                   ) : (
                     <button
                       onClick={() => handleCloseConversation(selectedTicket._id)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-glow-success hover:-translate-y-0.5 transition-all border border-emerald-600/10 shrink-0"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md transition-colors"
                     >
-                      <CheckCircle className="h-4 w-4" />
-                      <span>Solve & Close Chat</span>
+                      <CheckCircle className="h-3.5 w-3.5" />
+                      Resolve
                     </button>
                   )}
                 </div>
@@ -459,10 +445,10 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
             </div>
 
             {/* Message log display */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin bg-slate-50/50 dark:bg-slate-950/20">
-              <div className="flex flex-col items-center py-2 text-center text-xs text-muted-foreground border-b border-border/40 max-w-xs mx-auto mb-4 select-text">
-                <span className="font-bold text-foreground">INITIAL CONTACT PROBLEM SUMMARY</span>
-                <span className="mt-1 font-medium bg-muted px-3 py-1 rounded-lg border border-border/60">{selectedTicket.issue}</span>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin bg-muted/5">
+              <div className="flex flex-col items-center py-2 text-center border-b border-border/40 max-w-xs mx-auto mb-3 select-text">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Initial issue</span>
+                <span className="mt-1 text-[12px] text-foreground bg-muted px-3 py-1.5 rounded-md border border-border">{selectedTicket.issue}</span>
               </div>
 
               {messages.map((msg, index) => {
@@ -490,9 +476,9 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
                     )}
                     {hasText && (
                       <div
-                        className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed ${
+                        className={`px-3.5 py-2 rounded-xl text-[12px] font-medium leading-relaxed ${
                           isSupport
-                            ? 'bg-primary text-white rounded-tr-none'
+                            ? 'bg-indigo-600 text-white rounded-tr-none'
                             : 'bg-card text-foreground border border-border rounded-tl-none'
                         }`}
                       >
@@ -508,44 +494,35 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Message reply input footer */}
+            {/* Reply input */}
             {selectedTicket.status === 'pending' && assignments[selectedTicket._id] === user?.userId ? (
-              <form onSubmit={handleSendMessage} className="px-6 py-4 border-t border-border bg-card shrink-0">
-                {/* Image preview */}
+              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-border bg-card shrink-0">
                 {selectedImage && (
-                  <div className="mb-3 flex items-center gap-2">
+                  <div className="mb-2 flex items-center gap-2">
                     <div className="relative inline-block">
-                      <img src={selectedImage} alt="Preview" className="h-16 w-16 rounded-xl object-cover border border-border shadow-sm" />
+                      <img src={selectedImage} alt="Preview" className="h-12 w-12 rounded-md object-cover border border-border" />
                       <button
                         type="button"
                         onClick={() => setSelectedImage(null)}
-                        className="absolute -top-2 -right-2 h-5 w-5 bg-foreground text-background rounded-full flex items-center justify-center shadow-sm hover:bg-foreground/80 transition-all"
+                        className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-foreground text-background rounded-full flex items-center justify-center"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                         </svg>
                       </button>
                     </div>
-                    <span className="text-xs text-muted-foreground font-medium">Image ready to send</span>
+                    <span className="text-[11px] text-muted-foreground">Image attached</span>
                   </div>
                 )}
-                <div className="flex gap-2 relative items-center">
-                  {/* Hidden file input */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                    onChange={handleImageSelect}
-                  />
-                  {/* Image attach button */}
+                <div className="flex gap-2 items-center">
+                  <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={handleImageSelect} />
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex-shrink-0 p-2.5 rounded-xl border border-border bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-all"
+                    className="shrink-0 p-2 rounded-md border border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     title="Attach image"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                     </svg>
                   </button>
@@ -553,37 +530,32 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
                     type="text"
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Type your reply..."
-                    className="flex-1 pl-4 pr-14 py-3 bg-muted/40 border border-border rounded-xl text-sm focus:outline-none focus:border-primary text-foreground placeholder-muted-foreground"
+                    placeholder="Type a reply..."
+                    className="flex-1 px-3 py-2 bg-muted/30 border border-border rounded-md text-[12px] focus:outline-none focus:border-indigo-500 text-foreground placeholder-muted-foreground"
                   />
                   <button
                     type="submit"
                     disabled={!replyText.trim() && !selectedImage}
-                    className="absolute right-1.5 top-1.5 p-2 bg-primary text-white rounded-lg hover:bg-primary/95 transition-all shadow-glow-primary active:scale-[0.95] disabled:opacity-30 disabled:scale-100 disabled:shadow-none"
-                    title="Send Reply"
+                    className="shrink-0 p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-30"
                   >
-                    <Send className="h-4.5 w-4.5" />
+                    <Send className="h-4 w-4" />
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="px-6 py-5 border-t border-border bg-muted/30 text-center text-xs font-semibold text-muted-foreground shrink-0">
-                {selectedTicket.status === 'solved' ? (
-                  'RESOLVED DIALOGUE: This conversation has been marked as solved and closed.'
-                ) : (
-                  'READ-ONLY MONITORING: You must Accept/Claim this ticket from the general pool to reply.'
-                )}
+              <div className="px-4 py-2.5 border-t border-border bg-muted/10 text-center shrink-0">
+                <span className="text-[11px] text-muted-foreground">
+                  {selectedTicket.status === 'solved' ? 'Conversation resolved.' : 'Claim this ticket to reply.'}
+                </span>
               </div>
             )}
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
-            <div className="h-16 w-16 bg-muted/60 rounded-3xl flex items-center justify-center border border-border/40 text-muted-foreground/60 mb-4 animate-bounce-subtle">
-              <MessageSquare className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="font-bold text-foreground text-base">Conversational Workspace</h3>
-            <p className="text-xs mt-1 max-w-xs">
-              Select a customer chat from your queue or the general pool to start messaging in real time.
+            <MessageSquare className="h-8 w-8 text-muted-foreground/30 mb-3" />
+            <p className="text-[13px] font-medium text-foreground">Select a conversation</p>
+            <p className="text-[12px] mt-1 max-w-xs text-muted-foreground">
+              Choose a ticket from your queue to start replying.
             </p>
           </div>
         )}
@@ -591,66 +563,47 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
 
       {/* Right Column: Customer context sidebar */}
       {selectedTicket && (
-        <div className="w-80 rounded-2xl border border-border bg-card shadow-sm flex flex-col h-full overflow-hidden shrink-0 hidden xl:flex select-text">
-          <div className="px-5 py-4 border-b border-border bg-muted/20 shrink-0">
-            <h3 className="font-bold text-foreground flex items-center gap-2 text-sm">
-              <User className="h-4.5 w-4.5 text-primary" />
-              <span>Customer Background</span>
-            </h3>
+        <div className="w-64 rounded-lg border border-border bg-card flex flex-col h-full overflow-hidden shrink-0 hidden xl:flex select-text">
+          <div className="px-4 py-3 border-b border-border bg-muted/10 shrink-0">
+            <span className="text-[12px] font-semibold text-foreground flex items-center gap-1.5">
+              <User className="h-3.5 w-3.5 text-muted-foreground" />
+              Customer
+            </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-thin">
-            {/* Contact Details */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+            {/* Contact details */}
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg bg-muted border border-border/80 text-muted-foreground shrink-0">
-                  <User className="h-4 w-4" />
-                </div>
-                <div className="overflow-hidden">
-                  <span className="block text-[10px] uppercase font-bold text-muted-foreground">Full Name</span>
-                  <span className="block text-sm font-semibold text-foreground truncate">{selectedTicket.name}</span>
-                </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Name</span>
+                <span className="block text-[12px] font-semibold text-foreground mt-0.5">{selectedTicket.name}</span>
               </div>
-
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg bg-muted border border-border/80 text-muted-foreground shrink-0">
-                  <Mail className="h-4 w-4" />
-                </div>
-                <div className="overflow-hidden">
-                  <span className="block text-[10px] uppercase font-bold text-muted-foreground">Email Address</span>
-                  <span className="block text-sm font-semibold text-foreground truncate">{selectedTicket.email}</span>
-                </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Email</span>
+                <span className="block text-[12px] text-foreground mt-0.5 truncate">{selectedTicket.email}</span>
               </div>
-
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg bg-muted border border-border/80 text-muted-foreground shrink-0">
-                  <Phone className="h-4 w-4" />
-                </div>
-                <div className="overflow-hidden">
-                  <span className="block text-[10px] uppercase font-bold text-muted-foreground">Phone Number</span>
-                  <span className="block text-sm font-semibold text-foreground truncate">{selectedTicket.phone}</span>
-                </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Phone</span>
+                <span className="block text-[12px] text-foreground mt-0.5">{selectedTicket.phone}</span>
               </div>
             </div>
 
-            {/* Notes Textbox */}
-            <div className="border-t border-border/60 pt-4 space-y-2.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                <FileText className="h-4 w-4 text-primary" />
-                <span>Agent Notes & Context</span>
-              </div>
-              
+            {/* Notes */}
+            <div className="border-t border-border pt-3 space-y-2">
+              <span className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                Agent Notes
+              </span>
               <textarea
                 value={customerNotes}
                 onChange={(e) => setCustomerNotes(e.target.value)}
-                placeholder="Write notes about this customer (e.g. key preferences, history, warnings)..."
-                rows={5}
-                className="w-full px-3 py-2 bg-muted/20 border border-border rounded-xl text-xs focus:outline-none focus:border-primary text-foreground leading-relaxed placeholder-muted-foreground"
+                placeholder="Notes about this customer..."
+                rows={4}
+                className="w-full px-3 py-2 bg-muted/20 border border-border rounded-md text-[11px] focus:outline-none focus:border-indigo-500 text-foreground placeholder-muted-foreground resize-none"
               />
-              
               <button
                 onClick={handleSaveNotes}
-                className="w-full py-2 bg-muted hover:bg-muted/80 text-foreground border border-border text-xs font-bold rounded-xl active:scale-[0.98] transition-all"
+                className="w-full py-1.5 bg-muted hover:bg-muted/80 text-foreground border border-border text-[11px] font-semibold rounded-md transition-colors"
               >
                 Save Notes
               </button>

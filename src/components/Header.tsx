@@ -1,7 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Menu, Sun, Moon, Shield, User, LogOut } from 'lucide-react';
+import { Menu, Sun, Moon, LogOut, User, ChevronRight } from 'lucide-react';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -11,88 +11,98 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
   const { user, logout, theme, toggleTheme } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
+  const initials = user?.name?.substring(0, 2).toUpperCase() ?? '??';
+
+  // Build breadcrumb from path
+  const segments = location.pathname.split('/').filter(Boolean);
+  const breadcrumb = segments.map((s, i) => ({
+    label: s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    isLast: i === segments.length - 1,
+  }));
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-card/80 backdrop-blur-md px-6 text-foreground shadow-sm">
-      {/* Left section: Hamburger & Title */}
-      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+    <header className="sticky top-0 z-30 flex h-12 w-full items-center justify-between border-b border-border bg-background px-4 text-foreground">
+      {/* Left */}
+      <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={onMenuToggle}
-          className="rounded-lg p-2 hover:bg-muted lg:hidden text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors lg:hidden"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </button>
+
+        <nav className="hidden sm:flex items-center gap-1 text-[12px] text-muted-foreground">
+          {breadcrumb.map((seg, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground/40" />}
+              <span className={seg.isLast ? 'text-foreground font-medium' : ''}>
+                {seg.label}
+              </span>
+            </React.Fragment>
+          ))}
+        </nav>
+
+        {/* Mobile: just the title */}
         {title && (
-          <h2 className="text-lg font-bold font-sans tracking-tight text-foreground md:text-2xl truncate max-w-[140px] sm:max-w-none">
-            {title}
-          </h2>
+          <span className="sm:hidden text-[13px] font-semibold text-foreground truncate">{title}</span>
         )}
       </div>
 
-      {/* Right section: Theme, Profile */}
-      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-        {/* Dark/Light mode toggle */}
+      {/* Right */}
+      <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={toggleTheme}
-          className="rounded-xl p-2.5 bg-muted/60 text-muted-foreground hover:text-foreground border border-border/40 hover:bg-muted transition-all duration-200"
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
         >
           {theme === 'dark' ? (
-            <Sun className="h-5 w-5 text-amber-400 animate-pulse-subtle" />
+            <Sun className="h-4 w-4" />
           ) : (
-            <Moon className="h-5 w-5 text-indigo-600" />
+            <Moon className="h-4 w-4" />
           )}
         </button>
 
-        {/* Profile Dropdown */}
+        {/* Profile */}
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2.5 rounded-xl border border-border/40 p-1.5 pr-3 bg-muted/30 hover:bg-muted/70 transition-all duration-200 text-left"
+            className="flex items-center gap-2 rounded-md border border-border/60 px-2.5 py-1.5 hover:bg-muted transition-colors"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20 font-bold text-xs">
-              {user?.name.substring(0, 2).toUpperCase()}
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white font-bold text-[9px]">
+              {initials}
             </div>
-            <div className="hidden sm:block">
-              <span className="block text-xs font-semibold text-foreground max-w-[100px] truncate">{user?.name}</span>
-              <span className="block text-[10px] text-muted-foreground capitalize leading-none mt-0.5">{user?.role}</span>
-            </div>
+            <span className="hidden sm:block text-[12px] font-medium text-foreground max-w-[90px] truncate">{user?.name}</span>
+            <span className="hidden sm:block text-[10px] text-muted-foreground capitalize bg-muted px-1.5 py-0.5 rounded">
+              {user?.role}
+            </span>
           </button>
 
           {dropdownOpen && (
             <>
-              {/* Backdrop to close dropdown */}
-              <div
-                onClick={() => setDropdownOpen(false)}
-                className="fixed inset-0 z-40 bg-transparent"
-              />
-              <div className="absolute right-0 mt-2.5 w-56 rounded-2xl border border-border bg-card p-2.5 shadow-lg z-50 animate-fade-in text-foreground">
-                <div className="border-b border-border/60 px-3.5 py-3 text-sm">
-                  <p className="font-semibold">{user?.name}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{user?.email}</p>
+              <div onClick={() => setDropdownOpen(false)} className="fixed inset-0 z-40" />
+              <div className="absolute right-0 mt-1.5 w-48 rounded-lg border border-border bg-card shadow-lg z-50 overflow-hidden">
+                <div className="px-3 py-2.5 border-b border-border/60 bg-muted/30">
+                  <p className="text-[12px] font-semibold text-foreground">{user?.name}</p>
+                  <p className="text-[11px] text-muted-foreground truncate mt-0.5">{user?.email}</p>
                 </div>
-                <div className="py-1.5">
+                <div className="p-1">
                   <a
                     href={user?.role === 'admin' ? '/admin/dashboard' : '/agent/profile'}
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm hover:bg-muted transition-colors"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
                   >
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span>My Profile</span>
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    Profile
                   </a>
-                </div>
-                <div className="border-t border-border/60 pt-1.5">
                   <button
-                    onClick={() => {
-                      setDropdownOpen(false);
-                      logout();
-                      navigate('/login', { replace: true });
-                    }}
-                    className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 transition-all"
+                    onClick={() => { setDropdownOpen(false); logout(); navigate('/login', { replace: true }); }}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-[12px] text-rose-500 hover:bg-rose-500/10 transition-colors"
                   >
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
+                    <LogOut className="h-3.5 w-3.5" />
+                    Sign out
                   </button>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
@@ -14,66 +14,36 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color = 'primary', trend }) => {
-  const colorSchemes = {
-    primary: {
-      bg: 'bg-primary/10 border-primary/20 text-primary',
-      glow: 'shadow-glow-primary',
-      indicator: 'bg-primary/10 text-primary',
-    },
-    success: {
-      bg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400',
-      glow: 'shadow-glow-success',
-      indicator: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-    },
-    warning: {
-      bg: 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400',
-      glow: 'shadow-amber-500/10',
-      indicator: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-    },
-    danger: {
-      bg: 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400',
-      glow: 'shadow-rose-500/10',
-      indicator: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
-    },
-    info: {
-      bg: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400',
-      glow: 'shadow-indigo-500/10',
-      indicator: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-    },
+  const iconColors = {
+    primary: 'text-indigo-500',
+    success: 'text-emerald-500',
+    warning: 'text-amber-500',
+    danger: 'text-rose-500',
+    info: 'text-sky-500',
   };
 
-  const scheme = colorSchemes[color];
-
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group">
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold tracking-tight text-foreground font-sans md:text-3xl">{value}</p>
-        </div>
-        
-        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${scheme.bg} ${scheme.glow} transition-transform group-hover:scale-105 duration-300`}>
-          <Icon className="h-6 w-6" />
-        </div>
+    <div className="rounded-lg border border-border bg-card px-4 py-4 flex flex-col gap-3 hover:border-border/80 transition-colors">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{title}</span>
+        <Icon className={`h-4 w-4 ${iconColors[color]}`} />
       </div>
-
-      {trend && (
-        <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 font-bold ${
-            trend.isPositive 
-              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
-              : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-          }`}>
+      <div>
+        <p className="text-2xl font-bold text-foreground tabular-nums">{value}</p>
+        {trend && (
+          <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
             {trend.isPositive ? (
-              <ArrowUpRight className="h-3.5 w-3.5" />
+              <TrendingUp className="h-3 w-3 text-emerald-500" />
             ) : (
-              <ArrowDownRight className="h-3.5 w-3.5" />
+              <TrendingDown className="h-3 w-3 text-rose-500" />
             )}
-            {trend.value}
-          </span>
-          <span>{trend.label}</span>
-        </div>
-      )}
+            <span className={trend.isPositive ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-rose-500 font-semibold'}>
+              {trend.value}
+            </span>
+            <span>{trend.label}</span>
+          </p>
+        )}
+      </div>
     </div>
   );
 };

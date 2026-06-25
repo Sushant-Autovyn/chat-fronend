@@ -30,13 +30,13 @@ const AdminLayout: React.FC = () => {
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main Content Pane */}
-      <div className="flex flex-1 flex-col overflow-hidden lg:pl-64">
+      <div className="flex flex-1 flex-col overflow-hidden lg:pl-60">
         {/* Top Header */}
         <Header onMenuToggle={() => setSidebarOpen(true)} title={getPageTitle()} />
 
         {/* Scrollable Sub-view Outlet */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-5 scrollbar-thin">
-          <div className="mx-auto w-full max-w-[1600px] animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin">
+          <div className="mx-auto w-full max-w-[1600px]">
             <Outlet />
           </div>
         </main>

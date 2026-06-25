@@ -207,17 +207,17 @@ const LiveChats: React.FC = () => {
 
   return (
     <>
-    <div className="flex h-[calc(100vh-140px)] gap-0 lg:gap-6 overflow-hidden select-none">
+    <div className="flex h-[calc(100vh-100px)] gap-0 lg:gap-4 overflow-hidden select-none">
       {/* Left Column: Active Chats Queue */}
-      <div className={`w-full lg:w-96 rounded-2xl border border-border bg-card shadow-sm flex flex-col h-full overflow-hidden shrink-0 ${showChat ? 'hidden lg:flex' : 'flex'}`}>
-        <div className="px-5 py-4 border-b border-border bg-muted/20 shrink-0">
+      <div className={`w-full lg:w-80 rounded-lg border border-border bg-card flex flex-col h-full overflow-hidden shrink-0 ${showChat ? 'hidden lg:flex' : 'flex'}`}>
+        <div className="px-4 py-3 border-b border-border bg-muted/10 shrink-0">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-foreground flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              <span>Active Chats</span>
-            </h3>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
-              {activeTickets.length} Queue
+            <span className="text-[12px] font-semibold text-foreground flex items-center gap-1.5">
+              <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+              Active Queue
+            </span>
+            <span className="rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 text-[11px] font-bold">
+              {activeTickets.length}
             </span>
           </div>
         </div>
@@ -251,32 +251,25 @@ const LiveChats: React.FC = () => {
                 <div
                   key={ticket._id}
                   onClick={() => handleSelectTicket(ticket)}
-                  className={`p-4 text-left cursor-pointer transition-all duration-150 relative ${
-                    isSelected 
-                      ? 'bg-primary/5 dark:bg-primary/10 border-l-4 border-l-primary' 
-                      : 'hover:bg-muted/30 border-l-4 border-l-transparent'
+                  className={`px-4 py-3 cursor-pointer transition-colors relative ${
+                    isSelected
+                      ? 'bg-indigo-500/8 border-l-2 border-l-indigo-500'
+                      : 'hover:bg-muted/30 border-l-2 border-l-transparent'
                   }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <span className="font-bold text-sm text-foreground truncate max-w-[150px]">{ticket.name}</span>
-                    <span className="text-[10px] text-muted-foreground">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[12px] font-semibold text-foreground truncate max-w-[140px]">{ticket.name}</span>
+                    <span className="text-[10px] text-muted-foreground shrink-0">
                       {new Date(ticket.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  
-                  <p className="text-xs text-muted-foreground truncate font-medium mt-1 pr-4">
-                    {lastMessage}
-                  </p>
-
-                  <div className="mt-3 flex items-center justify-between text-[10px] font-semibold text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      <span className={agentName === 'Unassigned' ? 'text-amber-500 font-bold' : 'text-foreground'}>
-                        {agentName}
-                      </span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-muted border border-border/80 uppercase">
-                      #{ticket._id.substring(ticket._id.length - 6)}
+                  <p className="text-[11px] text-muted-foreground truncate mt-0.5">{lastMessage}</p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className={`text-[10px] font-medium ${agentName === 'Unassigned' ? 'text-amber-500' : 'text-muted-foreground'}`}>
+                      {agentName}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/60 font-mono">
+                      #{ticket._id.slice(-6)}
                     </span>
                   </div>
                 </div>
@@ -287,11 +280,11 @@ const LiveChats: React.FC = () => {
       </div>
 
       {/* Right Column: Live Conversation Monitor */}
-      <div className={`flex-1 rounded-2xl border border-border bg-card shadow-sm flex flex-col h-full overflow-hidden ${!showChat ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`flex-1 rounded-lg border border-border bg-card flex flex-col h-full overflow-hidden ${!showChat ? 'hidden lg:flex' : 'flex'}`}>
         {selectedTicket ? (
           <>
             {/* Active Ticket Header Info */}
-            <div className="px-4 sm:px-6 py-4 border-b border-border flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-muted/10 shrink-0">
+            <div className="px-4 py-3 border-b border-border flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between bg-muted/5 shrink-0">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowChat(false)}
@@ -302,7 +295,7 @@ const LiveChats: React.FC = () => {
                 </button>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-foreground text-sm sm:text-base leading-tight">{selectedTicket.name}</h3>
+                    <h3 className="text-[13px] font-semibold text-foreground leading-tight">{selectedTicket.name}</h3>
                     <span className="text-xs text-muted-foreground truncate max-w-[120px] sm:max-w-[200px]" title={selectedTicket.email}>({selectedTicket.email})</span>
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
                       selectedTicket.status === 'pending'
@@ -420,10 +413,10 @@ const LiveChats: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Monitoring Banner Footer (No Send Message for Admin!) */}
-            <div className="px-6 py-4.5 border-t border-border bg-muted/30 text-center text-xs font-semibold text-muted-foreground flex items-center justify-center gap-2 shrink-0">
-              <ShieldAlert className="h-4 w-4 text-primary" />
-              <span>ADMINISTRATIVE WATCH MODE: You are currently monitoring this chat. Only assigned agents can type replies.</span>
+            {/* Monitoring Banner Footer */}
+            <div className="px-4 py-2.5 border-t border-border bg-muted/20 flex items-center justify-center gap-2 shrink-0">
+              <ShieldAlert className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+              <span className="text-[11px] font-medium text-muted-foreground">Watch mode — only assigned agents can reply</span>
             </div>
           </>
         ) : (
