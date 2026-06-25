@@ -10,6 +10,7 @@ interface ChatMessage {
   text: string;
   imageUrl?: string | null;
   createdAt?: Date | string;
+  agentName?: string | null;
 }
 
 @Component({
@@ -128,17 +129,16 @@ export class App implements OnInit, OnDestroy, AfterViewChecked {
       if (!currentId || String(msg.ticketId) !== String(currentId)) return;
 
       this.messages.update(msgs => {
-        // Already has this exact server message (by createdAt + text)
         const exists = msgs.some(
           m => m.createdAt && m.createdAt === msg.createdAt && m.text === msg.text && m.imageUrl === msg.imageUrl
         );
         if (exists) return msgs;
 
-        // Remove the matching optimistic message (no createdAt, same sender+text+imageUrl)
         const filtered = msgs.filter(
           m => m.createdAt || m.sender !== msg.sender || m.text !== msg.text || m.imageUrl !== msg.imageUrl
         );
-        return [...filtered, msg];
+        // Preserve agentName from server message
+        return [...filtered, { ...msg, agentName: msg.agentName ?? null }];
       });
 
       this.markScrollNeeded();
@@ -304,6 +304,27 @@ export class App implements OnInit, OnDestroy, AfterViewChecked {
 
   clearSelectedImage(): void {
     this.selectedImage.set(null);
+  }
+
+  onPaste(event: ClipboardEvent): void {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        event.preventDefault();
+        const file = items[i].getAsFile();
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target?.result as string;
+          this.compressImage(dataUrl, 1000, 0.72).then(compressed => {
+            this.selectedImage.set(compressed);
+          });
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+    }
   }
 
   openImageFullscreen(url: string): void {
