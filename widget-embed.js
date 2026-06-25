@@ -1,100 +1,174 @@
 (function () {
 
-const WIDGET_SCRIPT_URL = 
-'https://chat-fronend-tau.vercel.app/widget.js?v=2';
+  const WIDGET_SCRIPT_URL = 
+  'https://chat-fronend-tau.vercel.app/widget.js?v=10';
 
-const WIDGET_CSS_URL = 
-'https://chat-fronend-tau.vercel.app/styles.css?v=2';
+  const WIDGET_CSS_URL = 
+  'https://chat-fronend-tau.vercel.app/styles.css?v=10';
 
-const ROOT_ID = 'support-chat-widget-root';
-
-
-function addWidgetRoot() {
-
-if(document.getElementById(ROOT_ID)){
-return;
-}
+  const ROOT_ID = 'support-chat-widget-root';
 
 
-const wrapper=document.createElement('div');
+  function addWidgetRoot() {
 
-wrapper.id=ROOT_ID;
-
-wrapper.style.position='fixed';
-
-wrapper.style.bottom='24px';
-
-wrapper.style.left='24px';
-
-wrapper.style.zIndex='99999';
-
-wrapper.style.pointerEvents='none';
+    if (document.getElementById(ROOT_ID)) {
+      return;
+    }
 
 
+    const wrapper = document.createElement('div');
 
-const widget=document.createElement('support-chat-widget');
-
-widget.style.pointerEvents='auto';
-
-wrapper.appendChild(widget);
-
-document.body.appendChild(wrapper);
-
-}
+    wrapper.id = ROOT_ID;
 
 
+    // Position
+    wrapper.style.position = 'fixed';
 
-function loadStylesheet(href){
+    wrapper.style.bottom = '24px';
 
-const link=document.createElement('link');
+    wrapper.style.left = '24px';
 
-link.rel='stylesheet';
+    wrapper.style.right = 'auto';
 
-link.href=href;
-
-document.head.appendChild(link);
-
-}
+    wrapper.style.top = 'auto';
 
 
+    // Layer
+    wrapper.style.zIndex = '999999';
 
-function loadScript(src){
 
-const script=document.createElement('script');
+    // allow click
+    wrapper.style.pointerEvents = 'none';
 
-script.src=src;
 
-script.async=true;
+    const widget = document.createElement('support-chat-widget');
 
-document.body.appendChild(script);
 
-}
+    widget.style.pointerEvents = 'auto';
+
+
+    // force widget position
+    widget.style.position = 'relative';
+
+    widget.style.left = '0';
+
+    widget.style.right = 'auto';
+
+
+    wrapper.appendChild(widget);
+
+
+    document.body.appendChild(wrapper);
+
+  }
 
 
 
-function initWidget(){
-
-addWidgetRoot();
-
-loadStylesheet(WIDGET_CSS_URL);
-
-loadScript(WIDGET_SCRIPT_URL);
-
-}
+  function loadStylesheet(href) {
 
 
-if(document.readyState==='loading'){
+    if (!href) return;
 
-document.addEventListener(
-'DOMContentLoaded',
-initWidget
-);
 
-}else{
+    const oldStyle = document.querySelector(
+      `link[href^="${href.split('?')[0]}"]`
+    );
 
-initWidget();
 
-}
+    if(oldStyle){
+      oldStyle.remove();
+    }
+
+
+    const link = document.createElement('link');
+
+
+    link.rel = 'stylesheet';
+
+    link.href = href;
+
+
+    document.head.appendChild(link);
+
+  }
+
+
+
+
+  function loadScript(src) {
+
+
+    const script = document.createElement('script');
+
+
+    script.src = src;
+
+
+    script.async = true;
+
+
+    script.onload = function(){
+
+      console.log(
+        'Support chat widget loaded'
+      );
+
+    };
+
+
+    script.onerror = function(){
+
+      console.error(
+        'Failed loading widget script'
+      );
+
+    };
+
+
+    document.body.appendChild(script);
+
+  }
+
+
+
+
+  function initWidget(){
+
+
+    addWidgetRoot();
+
+
+    loadStylesheet(
+      WIDGET_CSS_URL
+    );
+
+
+    loadScript(
+      WIDGET_SCRIPT_URL
+    );
+
+  }
+
+
+
+
+  if(
+    document.readyState === 'loading'
+  ){
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      initWidget
+    );
+
+
+  }else{
+
+
+    initWidget();
+
+
+  }
 
 
 })();
