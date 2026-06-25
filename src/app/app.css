@@ -808,6 +808,7 @@ textarea {
   color: var(--primary-light);
   background: rgba(46, 111, 211, 0.07);
   cursor: pointer;
+  user-select: none;
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
@@ -819,6 +820,7 @@ textarea {
 .attach-btn svg {
   width: 17px;
   height: 17px;
+  pointer-events: none;
 }
 
 /* Image preview bar above input */

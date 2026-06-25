@@ -35,7 +35,6 @@ export class App implements OnInit, OnDestroy, AfterViewChecked {
   private socket: any = null;
   private shouldScrollToBottom = false;
 
-  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('messagesScroll') messagesScrollRef!: ElementRef<HTMLDivElement>;
 
   userDetailsForm = new FormGroup({
@@ -252,10 +251,6 @@ export class App implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ─── Image handling ───────────────────────────────────────────────────────
-
-  triggerImagePicker(): void {
-    this.fileInputRef?.nativeElement.click();
-  }
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
