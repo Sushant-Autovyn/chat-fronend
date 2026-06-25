@@ -164,6 +164,10 @@ const initLocalStorage = () => {
     localStorage.setItem('enterprise_customers', JSON.stringify(defaultCustomers));
   }
 
+  if (!localStorage.getItem('enterprise_deleted_customers')) {
+    localStorage.setItem('enterprise_deleted_customers', JSON.stringify([]));
+  }
+
   // 7. Pre-populate Ticket assignments (Mapping ticket._id -> agent.id)
   if (!localStorage.getItem('enterprise_ticket_assignments')) {
     localStorage.setItem('enterprise_ticket_assignments', JSON.stringify({}));
@@ -399,7 +403,9 @@ export const kbService = {
 // ----------------------------------------------------
 export const customerService = {
   getCustomers: (): Customer[] => {
-    return JSON.parse(localStorage.getItem('enterprise_customers') || '[]');
+    const customers: Customer[] = JSON.parse(localStorage.getItem('enterprise_customers') || '[]');
+    const deletedCustomers: string[] = JSON.parse(localStorage.getItem('enterprise_deleted_customers') || '[]');
+    return customers.filter(customer => !deletedCustomers.includes(customer.email.toLowerCase()));
   },
 
   getDeletedCustomers: (): string[] => {
