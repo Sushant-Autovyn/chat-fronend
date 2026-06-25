@@ -39,9 +39,18 @@ async function buildWidget() {
     const outputFilePath = path.join(finalDistPath, 'widget.js');
     fs.writeFileSync(outputFilePath, concatenatedContent, 'utf8');
 
+    const publicPath = path.join(__dirname, 'public');
+    if (fs.existsSync(publicPath)) {
+      fs.copyFileSync(outputFilePath, path.join(publicPath, 'widget.js'));
+    }
+
     const cssPath = path.join(browserPath, 'styles.css');
     if (fs.existsSync(cssPath)) {
-        fs.copyFileSync(cssPath, path.join(finalDistPath, 'styles.css'));
+        const widgetCssPath = path.join(finalDistPath, 'styles.css');
+        fs.copyFileSync(cssPath, widgetCssPath);
+        if (fs.existsSync(publicPath)) {
+          fs.copyFileSync(cssPath, path.join(publicPath, 'styles.css'));
+        }
     }
     
     const testHtmlSource = path.join(__dirname, 'test-widget.html');

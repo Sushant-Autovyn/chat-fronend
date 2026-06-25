@@ -12,7 +12,8 @@
     wrapper.id = ROOT_ID;
     wrapper.style.position = 'fixed';
     wrapper.style.bottom = '24px';
-    wrapper.style.right = '24px';
+    wrapper.style.left = '24px';
+    wrapper.style.right = 'auto';
     wrapper.style.zIndex = '99999';
     wrapper.style.pointerEvents = 'none';
 
