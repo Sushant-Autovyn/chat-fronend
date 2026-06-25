@@ -75,6 +75,11 @@ export class App implements OnInit, OnDestroy {
     });
 
     this.socket.on('receive_message', (message: any) => {
+      const currentTicketId = this.ticketId();
+      if (!currentTicketId || String(message.ticketId) !== String(currentTicketId)) {
+        return;
+      }
+
       this.messages.update(msgs => {
         // Prevent duplicate messages if optimistic update exists
         const exists = msgs.some(m => m.createdAt === message.createdAt && m.text === message.text);
@@ -87,7 +92,7 @@ export class App implements OnInit, OnDestroy {
     });
 
     this.socket.on('ticket_solved', (data: { ticketId: string }) => {
-      if (data.ticketId === ticketId) {
+      if (String(data.ticketId) === String(ticketId)) {
         console.log('Ticket marked as solved, disconnecting chatbot socket');
         this.messages.update(msgs => [...msgs, {
           sender: 'support',
