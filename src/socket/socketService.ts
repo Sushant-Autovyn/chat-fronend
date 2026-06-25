@@ -50,12 +50,11 @@ class SocketService {
     }
   }
 
-  sendMessage(ticketId: string, sender: 'user' | 'support', text: string): void {
+  sendMessage(ticketId: string, sender: 'user' | 'support', text: string, imageUrl?: string | null): void {
     if (this.socket) {
-      this.socket.emit('send_message', { ticketId, sender, text });
-      console.log(`Socket emitted send_message for ticket: ${ticketId}`);
+      this.socket.emit('send_message', { ticketId, sender, text, imageUrl: imageUrl ?? null });
     } else {
-      console.warn('Socket not connected. Cannot send message:', text);
+      console.warn('Socket not connected. Cannot send message.');
     }
   }
 

@@ -30,7 +30,9 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
   const [customerNotes, setCustomerNotes] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { confirm, success: notifySuccess, error: notifyError } = useNotification();
 
   // Initial load
@@ -140,6 +142,7 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
     }
     setMessages([]);
     setReplyText('');
+    setSelectedImage(null);
     
     // Load customer profile and notes
     const profile = customerService.addOrUpdateCustomerFromTicket(ticket);
@@ -180,16 +183,47 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
     }
   };
 
+  // Compress image using canvas before sending
+  const compressImage = (dataUrl: string, maxWidth = 1000, quality = 0.72): Promise<string> =>
+    new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowed.includes(file.type)) { notifyError('Only JPEG, PNG, GIF, and WebP images are supported.'); e.target.value = ''; return; }
+    if (file.size > 10 * 1024 * 1024) { notifyError('Image must be under 10MB.'); e.target.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const compressed = await compressImage(ev.target?.result as string);
+      setSelectedImage(compressed);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   // Send message over socket.io
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     const text = replyText.trim();
-    if (!text || !selectedTicket) return;
+    if (!text && !selectedImage) return;
+    if (!selectedTicket) return;
 
-    // 1. Send via Socket
-    socketService.sendMessage(selectedTicket._id, 'support', text);
-
+    socketService.sendMessage(selectedTicket._id, 'support', text, selectedImage);
     setReplyText('');
+    setSelectedImage(null);
   };
 
   // Close conversation
@@ -476,18 +510,55 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
 
             {/* Message reply input footer */}
             {selectedTicket.status === 'pending' && assignments[selectedTicket._id] === user?.userId ? (
-              <form onSubmit={handleSendMessage} className="px-6 py-4.5 border-t border-border bg-card shrink-0">
-                <div className="flex gap-3 relative">
+              <form onSubmit={handleSendMessage} className="px-6 py-4 border-t border-border bg-card shrink-0">
+                {/* Image preview */}
+                {selectedImage && (
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="relative inline-block">
+                      <img src={selectedImage} alt="Preview" className="h-16 w-16 rounded-xl object-cover border border-border shadow-sm" />
+                      <button
+                        type="button"
+                        onClick={() => setSelectedImage(null)}
+                        className="absolute -top-2 -right-2 h-5 w-5 bg-foreground text-background rounded-full flex items-center justify-center shadow-sm hover:bg-foreground/80 transition-all"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-medium">Image ready to send</span>
+                  </div>
+                )}
+                <div className="flex gap-2 relative items-center">
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                  />
+                  {/* Image attach button */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-shrink-0 p-2.5 rounded-xl border border-border bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-all"
+                    title="Attach image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                  </button>
                   <input
                     type="text"
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Type your message reply to customer here..."
+                    placeholder="Type your reply..."
                     className="flex-1 pl-4 pr-14 py-3 bg-muted/40 border border-border rounded-xl text-sm focus:outline-none focus:border-primary text-foreground placeholder-muted-foreground"
                   />
                   <button
                     type="submit"
-                    disabled={!replyText.trim()}
+                    disabled={!replyText.trim() && !selectedImage}
                     className="absolute right-1.5 top-1.5 p-2 bg-primary text-white rounded-lg hover:bg-primary/95 transition-all shadow-glow-primary active:scale-[0.95] disabled:opacity-30 disabled:scale-100 disabled:shadow-none"
                     title="Send Reply"
                   >
