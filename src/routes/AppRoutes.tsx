@@ -11,7 +11,6 @@ import LiveChats from '../admin/LiveChats';
 import ChatHistory from '../admin/ChatHistory';
 import CustomerManagement from '../admin/CustomerManagement';
 import Analytics from '../admin/Analytics';
-import KnowledgeBase from '../admin/KnowledgeBase';
 import DepartmentManagement from '../admin/DepartmentManagement';
 
 // Agent Views
@@ -45,7 +44,6 @@ const AppRoutes: React.FC = () => {
         <Route path="departments" element={<DepartmentManagement />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="reports" element={<Analytics />} /> {/* Reuses analytics for report summaries */}
-        <Route path="knowledge-base" element={<KnowledgeBase />} />
       </Route>
 
       {/* Agent Panel (Protected & RBAC-guarded) */}

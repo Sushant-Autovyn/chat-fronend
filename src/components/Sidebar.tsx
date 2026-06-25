@@ -8,8 +8,6 @@ import {
   Users,
   Contact,
   Building,
-  BarChart3,
-  BookOpen,
   LogOut,
   MessageSquare,
   MessageCircle,
@@ -38,7 +36,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { to: '/admin/customers', label: 'Customers', icon: Contact },
     { to: '/admin/departments', label: 'Departments', icon: Building },
     { to: '/admin/reports', label: 'Reports', icon: FileText },
-    { to: '/admin/knowledge-base', label: 'Knowledge Base', icon: BookOpen },
   ];
 
   const agentLinks = [

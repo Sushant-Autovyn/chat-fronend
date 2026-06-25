@@ -19,7 +19,6 @@ const AdminLayout: React.FC = () => {
       departments: 'Department Configuration',
       analytics: 'Analytics & Reports',
       reports: 'Performance Reports',
-      'knowledge-base': 'Knowledge Base (FAQ)',
       settings: 'System Preferences',
     };
     return titles[path] || 'Admin Panel';
