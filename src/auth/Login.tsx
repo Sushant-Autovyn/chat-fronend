@@ -24,12 +24,12 @@ const AutovynLogo: React.FC<{ size?: number }> = ({ size = 40 }) => (
   </svg>
 );
 
-// Sidebar brand mark — smaller version for the top of login form
-const AutovynMark: React.FC = () => (
-  <div className="flex items-center gap-3">
-    <AutovynLogo size={40} />
+// Sidebar brand mark — larger version for the top of login form
+const AutovynMark: React.FC<{ large?: boolean }> = ({ large = false }) => (
+  <div className="flex items-center gap-4">
+    <AutovynLogo size={large ? 64 : 40} />
     <div>
-      <div className="text-[18px] font-extrabold tracking-widest text-white leading-none">AUTOVYN</div>
+      <div className={`font-extrabold tracking-widest text-white leading-none ${large ? 'text-[24px]' : 'text-[18px]'}`}>AUTOVYN</div>
       <div className="text-[11px] font-semibold text-orange-400 leading-none mt-0.5">Automating lives!</div>
     </div>
   </div>
@@ -66,14 +66,14 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-[920px] grid lg:grid-cols-[1fr_420px] gap-0 overflow-hidden rounded-xl border border-white/[0.07] shadow-2xl">
+    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-[1000px] grid lg:grid-cols-[1.2fr_480px] gap-0 overflow-hidden rounded-xl border border-white/[0.08] shadow-2xl">
 
         {/* Left panel — dark brand side */}
-        <div className="hidden lg:flex flex-col justify-between bg-[#0f1117] border-r border-white/[0.06] p-10">
+        <div className="hidden lg:flex flex-col justify-between bg-[#0a0c10] border-r border-white/[0.06] p-12">
           <div>
             {/* Logo */}
-            <AutovynMark />
+            <AutovynMark large={true} />
 
             <div className="mt-10 space-y-2">
               <h1 className="text-[26px] font-bold text-white leading-snug tracking-tight">
@@ -110,10 +110,10 @@ const Login: React.FC = () => {
         </div>
 
         {/* Right panel — sign in form */}
-        <div className="flex flex-col justify-center bg-[#111318] p-8 sm:p-10">
+        <div className="flex flex-col justify-center bg-[#131619] p-8 sm:p-10">
           {/* Mobile logo */}
           <div className="lg:hidden mb-8">
-            <AutovynMark />
+            <AutovynMark large={true} />
           </div>
 
           <div className="mb-8">
