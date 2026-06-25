@@ -1,10 +1,10 @@
 (function () {
 
-  const WIDGET_SCRIPT_URL = 
-  'https://chat-fronend-tau.vercel.app/widget.js?v=10';
+  const scriptSrc = document.currentScript?.src || '';
+  const WIDGET_BASE_URL = scriptSrc ? new URL('.', scriptSrc).href : './';
+  const WIDGET_SCRIPT_URL = new URL('widget.js?v=10', WIDGET_BASE_URL).href;
 
-  const WIDGET_CSS_URL = 
-  'https://chat-fronend-tau.vercel.app/styles.css?v=10';
+  const WIDGET_CSS_URL = new URL('styles.css?v=10', WIDGET_BASE_URL).href;
 
   const ROOT_ID = 'support-chat-widget-root';
 
