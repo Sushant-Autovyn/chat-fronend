@@ -158,13 +158,21 @@ export class App implements OnInit, OnDestroy {
 
           fetch(`https://chat-support-backend-xhfd.onrender.com/api/tickets/${storedTicketId}`)
         .then(res => {
+          if (res.status === 404) {
+            // Ticket genuinely doesn't exist — safe to clear
+            this.clearStoredTicket();
+            return null;
+          }
           if (!res.ok) {
-            throw new Error('Failed to restore ticket session');
+            // Network/server error — keep the ticket ID so next refresh can retry
+            throw new Error(`Server error ${res.status}`);
           }
           return res.json();
         })
         .then(ticket => {
-          if (!ticket || !ticket._id) {
+          if (!ticket) return;
+
+          if (!ticket._id) {
             this.clearStoredTicket();
             return;
           }
@@ -189,8 +197,8 @@ export class App implements OnInit, OnDestroy {
           }
         })
         .catch(err => {
-          console.error('Session restore failed:', err);
-          this.clearStoredTicket();
+          // Network error or server down — do NOT clear the ticket so the next refresh can retry
+          console.error('Session restore failed (will retry on next refresh):', err);
         });
     } catch (err) {
       console.warn('Could not restore chat session:', err);
