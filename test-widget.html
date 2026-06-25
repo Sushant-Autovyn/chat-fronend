@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget Test</title>
+    <!-- Include the compiled CSS if it exists -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .dummy-content {
+            max-width: 800px;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        h1 { color: #111827; }
+        p { color: #4b5563; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <h1>Host Application</h1>
+    <p>This is a simulated host application to test the embeddable chat widget. You should see a chat widget button at the bottom right corner of the screen.</p>
+    
+    <div class="dummy-content">
+        <h2>Content Area</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere.</p>
+    </div>
+
+    <!-- Injecting the custom Web Component -->
+    <support-chat-widget></support-chat-widget>
+
+    <!-- Including the compiled Widget Script -->
+    <script src="widget.js"></script>
+</body>
+</html>
