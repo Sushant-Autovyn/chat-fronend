@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { ticketService, customerService, routingService, Ticket, Customer, Message, logActivity } from '../services/api';
 import socketService from '../socket/socketService';
 import { useNotification } from '../notifications/NotificationProvider';
-import { MessageSquare, User, Phone, Mail, FileText, Send, CheckCircle, ArrowRightLeft, UserCheck, ArrowLeft } from 'lucide-react';
+import { MessageSquare, User, Phone, Mail, FileText, Send, CheckCircle, ArrowRightLeft, UserCheck, ArrowLeft, ZoomIn } from 'lucide-react';
 
 interface MyChatsProps {
   activeOnly?: boolean;
@@ -30,6 +30,7 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
   const [customerNotes, setCustomerNotes] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const { confirm, success: notifySuccess, error: notifyError } = useNotification();
 
   // Initial load
@@ -83,11 +84,13 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
 
     // 2. Listen for messages in real-time
     const removeReceiveMessageListener = socketService.onReceiveMessage((message: any) => {
+      const isDuplicate = (a: any, b: any) =>
+        a.createdAt === b.createdAt && a.text === b.text && a.imageUrl === b.imageUrl;
+
       setSelectedTicket(current => {
         if (current && current._id === message.ticketId) {
           setMessages(prev => {
-            // Avoid duplicate additions
-            if (prev.some(m => m.createdAt === message.createdAt && m.text === message.text)) return prev;
+            if (prev.some(m => isDuplicate(m, message))) return prev;
             return [...prev, message];
           });
         }
@@ -97,7 +100,7 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
       setTickets(prev => prev.map(t => {
         if (t._id === message.ticketId) {
           const msgs = t.messages || [];
-          if (!msgs.some(m => m.createdAt === message.createdAt && m.text === message.text)) {
+          if (!msgs.some(m => isDuplicate(m, message))) {
             return { ...t, messages: [...msgs, message] };
           }
         }
@@ -242,6 +245,28 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
   const activeQueue = queueTab === 'my' ? myQueue : unassignedQueue;
 
   return (
+    <>
+    {fullscreenImage && (
+      <div
+        className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center"
+        onClick={() => setFullscreenImage(null)}
+      >
+        <button
+          className="absolute top-4 right-4 text-white bg-white/15 hover:bg-white/25 rounded-full p-2 transition-all"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <img
+          src={fullscreenImage}
+          alt="Full size"
+          className="max-w-[90vw] max-h-[88vh] rounded-xl object-contain shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        />
+      </div>
+    )}
     <div className="flex h-[calc(100vh-140px)] gap-0 lg:gap-6 overflow-hidden select-none">
       {/* Left Column: Queue Manager */}
       {!activeOnly && (
@@ -292,8 +317,11 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
             ) : (
               activeQueue.map((ticket) => {
                 const isSelected = selectedTicket?._id === ticket._id;
-                const lastMessage = ticket.messages && ticket.messages.length > 0
-                  ? ticket.messages[ticket.messages.length - 1].text
+                const lastMsg = ticket.messages && ticket.messages.length > 0
+                  ? ticket.messages[ticket.messages.length - 1]
+                  : null;
+                const lastMessage = lastMsg
+                  ? (lastMsg.text || (lastMsg.imageUrl ? '📷 Image' : ''))
                   : ticket.issue;
 
                 return (
@@ -405,6 +433,8 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
 
               {messages.map((msg, index) => {
                 const isSupport = msg.sender === 'support';
+                const hasImage = !!msg.imageUrl;
+                const hasText = !!msg.text;
                 return (
                   <div
                     key={index}
@@ -412,15 +442,29 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
                       isSupport ? 'ml-auto items-end' : 'mr-auto items-start'
                     }`}
                   >
-                    <div
-                      className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed ${
-                        isSupport
-                          ? 'bg-primary text-white rounded-tr-none'
-                          : 'bg-card text-foreground border border-border rounded-tl-none'
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
+                    {hasImage && (
+                      <div className="relative group mb-1 cursor-zoom-in" onClick={() => setFullscreenImage(msg.imageUrl!)}>
+                        <img
+                          src={msg.imageUrl!}
+                          alt="Shared image"
+                          className="max-w-[220px] max-h-[220px] rounded-2xl object-cover border border-border shadow-sm"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-2xl transition-all flex items-center justify-center">
+                          <ZoomIn className="text-white opacity-0 group-hover:opacity-100 h-6 w-6 drop-shadow" />
+                        </div>
+                      </div>
+                    )}
+                    {hasText && (
+                      <div
+                        className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed ${
+                          isSupport
+                            ? 'bg-primary text-white rounded-tr-none'
+                            : 'bg-card text-foreground border border-border rounded-tl-none'
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+                    )}
                     <span className="text-[9px] text-muted-foreground mt-1.5 px-1 font-semibold">
                       {isSupport ? 'You' : selectedTicket.name} • {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'Sending...'}
                     </span>
@@ -552,6 +596,7 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

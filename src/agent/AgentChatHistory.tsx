@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { ticketService, routingService, Ticket, Message } from '../services/api';
 import Table from '../components/Table';
 import Modal from '../components/Modal';
-import { Search, Calendar, ExternalLink } from 'lucide-react';
+import { Search, Calendar, ExternalLink, ZoomIn } from 'lucide-react';
 
 const AgentChatHistory: React.FC = () => {
   const { user } = useAuth();
@@ -20,6 +20,7 @@ const AgentChatHistory: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAgentHistory = async () => {
@@ -84,6 +85,28 @@ const AgentChatHistory: React.FC = () => {
   };
 
   return (
+    <>
+    {fullscreenImage && (
+      <div
+        className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center"
+        onClick={() => setFullscreenImage(null)}
+      >
+        <button
+          className="absolute top-4 right-4 text-white bg-white/15 hover:bg-white/25 rounded-full p-2 transition-all"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <img
+          src={fullscreenImage}
+          alt="Full size"
+          className="max-w-[90vw] max-h-[88vh] rounded-xl object-contain shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        />
+      </div>
+    )}
     <div className="space-y-6">
       {/* Page Header */}
       <div>
@@ -231,6 +254,8 @@ const AgentChatHistory: React.FC = () => {
               ) : (
                 messages.map((msg, index) => {
                   const isSupport = msg.sender === 'support';
+                  const hasImage = !!msg.imageUrl;
+                  const hasText = !!msg.text;
                   return (
                     <div
                       key={index}
@@ -238,15 +263,32 @@ const AgentChatHistory: React.FC = () => {
                         isSupport ? 'ml-auto items-end' : 'mr-auto items-start'
                       }`}
                     >
-                      <div
-                        className={`px-3.5 py-2 rounded-xl text-sm leading-relaxed ${
-                          isSupport
-                            ? 'bg-primary text-white rounded-tr-none'
-                            : 'bg-card text-foreground border border-border rounded-tl-none'
-                        }`}
-                      >
-                        {msg.text}
-                      </div>
+                      {hasImage && (
+                        <div
+                          className="relative group mb-1 cursor-zoom-in"
+                          onClick={() => setFullscreenImage(msg.imageUrl!)}
+                        >
+                          <img
+                            src={msg.imageUrl!}
+                            alt="Shared image"
+                            className="max-w-[180px] max-h-[180px] rounded-xl object-cover border border-border shadow-sm"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-xl transition-all flex items-center justify-center">
+                            <ZoomIn className="text-white opacity-0 group-hover:opacity-100 h-5 w-5 drop-shadow" />
+                          </div>
+                        </div>
+                      )}
+                      {hasText && (
+                        <div
+                          className={`px-3.5 py-2 rounded-xl text-sm leading-relaxed ${
+                            isSupport
+                              ? 'bg-primary text-white rounded-tr-none'
+                              : 'bg-card text-foreground border border-border rounded-tl-none'
+                          }`}
+                        >
+                          {msg.text}
+                        </div>
+                      )}
                       <span className="text-[9px] text-muted-foreground mt-1 px-1">
                         {isSupport ? 'You (Support)' : selectedTicket.name} • {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}
                       </span>
@@ -269,6 +311,7 @@ const AgentChatHistory: React.FC = () => {
         )}
       </Modal>
     </div>
+    </>
   );
 };
 

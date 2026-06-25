@@ -15,6 +15,7 @@ export interface Message {
   _id?: string;
   sender: 'user' | 'support';
   text: string;
+  imageUrl?: string | null;
   createdAt: string;
 }
 
