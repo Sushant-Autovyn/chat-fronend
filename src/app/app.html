@@ -110,6 +110,8 @@
             <p class="field-error" *ngIf="isControlInvalid('issue')">Tell us briefly what you need help with.</p>
           </div>
 
+          <p class="submit-error" *ngIf="submitError()">{{ submitError() }}</p>
+
           <button type="submit" class="btn-start-chat" [disabled]="!userDetailsForm.valid || isSubmitting()">
             <span class="button-spinner" *ngIf="isSubmitting()"></span>
             <svg *ngIf="!isSubmitting()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -127,7 +129,7 @@
           <span *ngIf="sessionResolved()">This conversation has been resolved. Thank you for chatting with us.</span>
         </div>
 
-        <div class="messages-container" id="messages-scroll">
+        <div class="messages-container" #messagesScroll>
           <div class="empty-conversation" *ngIf="messages().length === 0 && !sessionResolved()">
             <div class="typing-indicator" aria-hidden="true">
               <span></span>

@@ -1,7 +1,16 @@
-import { Component, OnDestroy, OnInit, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewChecked, signal, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { io } from 'socket.io-client';
+
+const API = 'https://chat-support-backend-xhfd.onrender.com';
+
+interface ChatMessage {
+  sender: 'user' | 'support';
+  text: string;
+  imageUrl?: string | null;
+  createdAt?: Date | string;
+}
 
 @Component({
   selector: 'app-root',
@@ -10,16 +19,25 @@ import { io } from 'socket.io-client';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit, OnDestroy {
-  private readonly TICKET_ID_STORAGE_KEY = 'supportChatTicketId';
+export class App implements OnInit, OnDestroy, AfterViewChecked {
+  private readonly TICKET_ID_KEY = 'supportChatTicketId';
 
   isOpen = signal(false);
   isFormSubmitted = signal(false);
   isSubmitting = signal(false);
   sessionResolved = signal(false);
+  submitError = signal<string | null>(null);
   ticketId = signal<string | null>(null);
-  private socket: any;
-  
+  messages = signal<ChatMessage[]>([]);
+  selectedImage = signal<string | null>(null);
+  fullscreenImage = signal<string | null>(null);
+
+  private socket: any = null;
+  private shouldScrollToBottom = false;
+
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('messagesScroll') messagesScrollRef!: ElementRef<HTMLDivElement>;
+
   userDetailsForm = new FormGroup({
     name: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -29,226 +47,214 @@ export class App implements OnInit, OnDestroy {
 
   chatInput = new FormControl('');
 
-  messages = signal<{sender: 'user' | 'support', text: string, imageUrl?: string | null, createdAt?: Date | string}[]>([]);
-  selectedImage = signal<string | null>(null);
-  fullscreenImage = signal<string | null>(null);
-  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.restoreSession();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.disconnectSocket();
   }
 
-  toggleChat() {
-    this.isOpen.update(v => !v);
+  ngAfterViewChecked(): void {
+    if (this.shouldScrollToBottom) {
+      this.shouldScrollToBottom = false;
+      this.scrollToBottom();
+    }
   }
 
-  isControlInvalid(controlName: 'name' | 'email' | 'phone' | 'issue'): boolean {
-    const control = this.userDetailsForm.controls[controlName];
-    return control.invalid && (control.dirty || control.touched);
+  // ─── UI helpers ───────────────────────────────────────────────────────────
+
+  toggleChat(): void {
+    this.isOpen.update(v => !v);
+    if (this.isOpen()) {
+      this.shouldScrollToBottom = true;
+    }
+  }
+
+  isControlInvalid(name: 'name' | 'email' | 'phone' | 'issue'): boolean {
+    const c = this.userDetailsForm.controls[name];
+    return c.invalid && (c.dirty || c.touched);
   }
 
   formatMessageTime(createdAt?: Date | string): string {
-    const date = createdAt ? new Date(createdAt) : new Date();
-
-    if (Number.isNaN(date.getTime())) {
-      return '';
-    }
-
-    return date.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    const d = createdAt ? new Date(createdAt) : new Date();
+    return isNaN(d.getTime()) ? '' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  disconnectSocket() {
+  private scrollToBottom(): void {
+    try {
+      const el = this.messagesScrollRef?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
+    } catch { /* ignore */ }
+  }
+
+  private markScrollNeeded(): void {
+    this.shouldScrollToBottom = true;
+  }
+
+  // ─── Socket ───────────────────────────────────────────────────────────────
+
+  private disconnectSocket(): void {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
-      console.log('Socket disconnected');
     }
   }
 
-  connectSocket(ticketId: string) {
-    this.saveTicketId(ticketId);
+  private connectSocket(ticketId: string): void {
+    // Disconnect any existing socket before creating a new one
     this.disconnectSocket();
     this.sessionResolved.set(false);
 
-        // Fetch initial chat history
-        fetch(`https://chat-support-backend-xhfd.onrender.com/api/chats/${ticketId}`)
+    // Fetch chat history first
+    fetch(`${API}/api/chats/${ticketId}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch chat history');
         return res.json();
       })
-      .then(chats => {
+      .then((chats: ChatMessage[]) => {
         this.messages.set(chats);
+        this.markScrollNeeded();
       })
-      .catch(err => console.error('Error fetching chat history:', err));
+      .catch(err => console.error('Chat history fetch error:', err));
 
-    // Connect to WebSockets
-        this.socket = io('https://chat-support-backend-xhfd.onrender.com');
+    this.socket = io(API);
 
     this.socket.on('connect', () => {
-      console.log('Chatbot socket connected');
       this.socket.emit('join_ticket', { ticketId });
     });
 
-    this.socket.on('receive_message', (message: any) => {
-      const currentTicketId = this.ticketId();
-      if (!currentTicketId || String(message.ticketId) !== String(currentTicketId)) {
-        return;
-      }
+    this.socket.on('receive_message', (msg: ChatMessage & { ticketId?: string }) => {
+      const currentId = this.ticketId();
+      if (!currentId || String(msg.ticketId) !== String(currentId)) return;
 
       this.messages.update(msgs => {
-        // Prevent duplicate messages if optimistic update exists
-        const exists = msgs.some(m => m.createdAt === message.createdAt && m.text === message.text);
+        // Already has this exact server message (by createdAt + text)
+        const exists = msgs.some(
+          m => m.createdAt && m.createdAt === msg.createdAt && m.text === msg.text && m.imageUrl === msg.imageUrl
+        );
         if (exists) return msgs;
-        
-        // Remove optimistic temporary message if any matching sender and text
-        const filtered = msgs.filter(m => m.createdAt || m.sender !== message.sender || m.text !== message.text);
-        return [...filtered, message];
+
+        // Remove the matching optimistic message (no createdAt, same sender+text+imageUrl)
+        const filtered = msgs.filter(
+          m => m.createdAt || m.sender !== msg.sender || m.text !== msg.text || m.imageUrl !== msg.imageUrl
+        );
+        return [...filtered, msg];
       });
+
+      this.markScrollNeeded();
     });
 
     this.socket.on('ticket_solved', (data: { ticketId: string }) => {
-      if (String(data.ticketId) === String(ticketId)) {
-        console.log('Ticket marked as solved, disconnecting chatbot socket');
-        this.messages.update(msgs => [...msgs, {
-          sender: 'support',
-          text: 'Thank you! Your conversation has been resolved. If you need more help, start a new chat.',
-          createdAt: new Date().toISOString()
-        }]);
-        this.sessionResolved.set(true);
-        this.disconnectSocket();
-      }
+      if (String(data.ticketId) !== String(ticketId)) return;
+
+      this.messages.update(msgs => [...msgs, {
+        sender: 'support',
+        text: 'Thank you! Your conversation has been resolved. If you need more help, start a new chat.',
+        createdAt: new Date().toISOString()
+      }]);
+      this.sessionResolved.set(true);
+      this.disconnectSocket();
+      this.markScrollNeeded();
     });
   }
 
-  resetChat(): void {
-    this.disconnectSocket();
-    this.clearStoredTicket();
-    this.isFormSubmitted.set(false);
-    this.isSubmitting.set(false);
-    this.sessionResolved.set(false);
-    this.ticketId.set(null);
-    this.messages.set([]);
-    this.selectedImage.set(null);
-    this.fullscreenImage.set(null);
-    this.userDetailsForm.reset();
-  }
+  // ─── Session persistence ──────────────────────────────────────────────────
 
-  private saveTicketId(ticketId: string): void {
-    try {
-      window.localStorage.setItem(this.TICKET_ID_STORAGE_KEY, ticketId);
-    } catch (err) {
-      console.warn('Could not persist ticket ID:', err);
-    }
+  private saveTicketId(id: string): void {
+    try { localStorage.setItem(this.TICKET_ID_KEY, id); } catch { /* ignore */ }
   }
 
   private clearStoredTicket(): void {
-    try {
-      window.localStorage.removeItem(this.TICKET_ID_STORAGE_KEY);
-    } catch (err) {
-      console.warn('Could not clear stored ticket ID:', err);
-    }
+    try { localStorage.removeItem(this.TICKET_ID_KEY); } catch { /* ignore */ }
   }
 
   private restoreSession(): void {
+    let storedId: string | null = null;
     try {
-      const storedTicketId = window.localStorage.getItem(this.TICKET_ID_STORAGE_KEY);
-      if (!storedTicketId) return;
+      storedId = localStorage.getItem(this.TICKET_ID_KEY);
+    } catch { return; }
 
-          fetch(`https://chat-support-backend-xhfd.onrender.com/api/tickets/${storedTicketId}`)
-        .then(res => {
-          if (res.status === 404) {
-            // Ticket genuinely doesn't exist — safe to clear
-            this.clearStoredTicket();
-            return null;
-          }
-          if (!res.ok) {
-            // Network/server error — keep the ticket ID so next refresh can retry
-            throw new Error(`Server error ${res.status}`);
-          }
-          return res.json();
-        })
-        .then(ticket => {
-          if (!ticket) return;
+    if (!storedId) return;
 
-          if (!ticket._id) {
-            this.clearStoredTicket();
-            return;
-          }
+    fetch(`${API}/api/tickets/${storedId}`)
+      .then(res => {
+        if (res.status === 404) {
+          this.clearStoredTicket();
+          return null;
+        }
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        return res.json();
+      })
+      .then(ticket => {
+        if (!ticket?._id) {
+          this.clearStoredTicket();
+          return;
+        }
 
-          this.ticketId.set(ticket._id);
-          this.isFormSubmitted.set(true);
+        this.ticketId.set(ticket._id);
+        this.isFormSubmitted.set(true);
 
-          if (ticket.status === 'solved') {
-            this.sessionResolved.set(true);
-                fetch(`https://chat-support-backend-xhfd.onrender.com/api/chats/${ticket._id}`)
-              .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch solved chat history');
-                return res.json();
-              })
-              .then(chats => {
-                this.messages.set(chats);
-              })
-              .catch(err => console.error('Error fetching solved chat history:', err));
-          } else {
-            this.sessionResolved.set(false);
-            this.connectSocket(ticket._id);
-          }
-        })
-        .catch(err => {
-          // Network error or server down — do NOT clear the ticket so the next refresh can retry
-          console.error('Session restore failed (will retry on next refresh):', err);
-        });
-    } catch (err) {
-      console.warn('Could not restore chat session:', err);
-      this.clearStoredTicket();
-    }
+        if (ticket.status === 'solved') {
+          this.sessionResolved.set(true);
+          fetch(`${API}/api/chats/${ticket._id}`)
+            .then(res => res.ok ? res.json() : Promise.reject())
+            .then((chats: ChatMessage[]) => {
+              this.messages.set(chats);
+              this.markScrollNeeded();
+            })
+            .catch(err => console.error('Solved chat history fetch error:', err));
+        } else {
+          this.connectSocket(ticket._id);
+        }
+      })
+      .catch(err => {
+        // Network/server error — keep ticket in localStorage to retry on next refresh
+        console.warn('Session restore failed, will retry on next refresh:', err);
+      });
   }
 
-  submitDetails() {
+  // ─── Form submit ──────────────────────────────────────────────────────────
+
+  submitDetails(): void {
+    if (this.isSubmitting()) return;
+
     if (this.userDetailsForm.invalid) {
       this.userDetailsForm.markAllAsTouched();
       return;
     }
 
-    if (this.userDetailsForm.valid) {
-      this.isSubmitting.set(true);
-      const formData = this.userDetailsForm.value;
-      
-          fetch('https://chat-support-backend-xhfd.onrender.com/api/tickets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to submit support details');
-        }
-        return response.json();
+    this.isSubmitting.set(true);
+    this.submitError.set(null);
+
+    fetch(`${API}/api/tickets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(this.userDetailsForm.value)
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to create ticket');
+        return res.json();
       })
       .then(data => {
-        console.log('Form data saved to DB:', data);
         this.ticketId.set(data._id);
+        this.saveTicketId(data._id);
         this.isFormSubmitted.set(true);
         this.connectSocket(data._id);
       })
       .catch(err => {
-        console.error('Error submitting form:', err);
-        // Fallback transition
-        this.isFormSubmitted.set(true);
+        console.error('Ticket creation error:', err);
+        this.submitError.set('Could not connect. Please try again.');
       })
       .finally(() => {
         this.isSubmitting.set(false);
       });
-    }
+  }
+
+  // ─── Image handling ───────────────────────────────────────────────────────
+
+  triggerImagePicker(): void {
+    this.fileInputRef?.nativeElement.click();
   }
 
   onImageSelected(event: Event): void {
@@ -256,30 +262,53 @@ export class App implements OnInit, OnDestroy {
     const file = input.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file.');
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only JPEG, PNG, GIF, and WebP images are supported.');
+      input.value = '';
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be under 5MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image must be under 10MB.');
+      input.value = '';
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      this.selectedImage.set(e.target?.result as string);
+      const dataUrl = e.target?.result as string;
+      // Compress before storing so socket payload stays small
+      this.compressImage(dataUrl, 1000, 0.72).then(compressed => {
+        this.selectedImage.set(compressed);
+      });
     };
     reader.readAsDataURL(file);
     input.value = '';
   }
 
-  clearSelectedImage(): void {
-    this.selectedImage.set(null);
+  private compressImage(dataUrl: string, maxWidth: number, quality: number): Promise<string> {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round(height * maxWidth / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(dataUrl); // fallback: use original
+      img.src = dataUrl;
+    });
   }
 
-  triggerImagePicker(): void {
-    this.fileInputRef.nativeElement.click();
+  clearSelectedImage(): void {
+    this.selectedImage.set(null);
   }
 
   openImageFullscreen(url: string): void {
@@ -290,33 +319,43 @@ export class App implements OnInit, OnDestroy {
     this.fullscreenImage.set(null);
   }
 
-  sendMessage() {
-    if (this.sessionResolved()) {
-      console.warn('Session already resolved; ignoring send.');
-      return;
-    }
+  // ─── Send message ─────────────────────────────────────────────────────────
 
-    const text = this.chatInput.value?.trim() || '';
+  sendMessage(): void {
+    if (this.sessionResolved()) return;
+
+    const text = this.chatInput.value?.trim() ?? '';
     const imageUrl = this.selectedImage();
     const currentTicketId = this.ticketId();
 
-    if (!currentTicketId) return;
-    if (!text && !imageUrl) return;
+    if (!currentTicketId || (!text && !imageUrl)) return;
 
-    // Optimistic local update
+    // Optimistic update
     this.messages.update(msgs => [...msgs, { sender: 'user', text, imageUrl }]);
-    this.chatInput.reset();
+    this.chatInput.setValue('');
     this.selectedImage.set(null);
+    this.markScrollNeeded();
 
-    if (this.socket) {
-      this.socket.emit('send_message', {
-        ticketId: currentTicketId,
-        sender: 'user',
-        text,
-        imageUrl
-      });
+    if (this.socket?.connected) {
+      this.socket.emit('send_message', { ticketId: currentTicketId, sender: 'user', text, imageUrl });
     } else {
-      console.error('Socket not connected, cannot send message');
+      console.error('Socket not connected — message may not be delivered');
     }
+  }
+
+  // ─── Reset ────────────────────────────────────────────────────────────────
+
+  resetChat(): void {
+    this.disconnectSocket();
+    this.clearStoredTicket();
+    this.isFormSubmitted.set(false);
+    this.isSubmitting.set(false);
+    this.sessionResolved.set(false);
+    this.submitError.set(null);
+    this.ticketId.set(null);
+    this.messages.set([]);
+    this.selectedImage.set(null);
+    this.fullscreenImage.set(null);
+    this.userDetailsForm.reset();
   }
 }
