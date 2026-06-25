@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 const AutovynLogo: React.FC = () => (
-  <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="40" height="40" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="120" height="120" rx="16" fill="#0a0c10" />
     <ellipse cx="42" cy="42" rx="18" ry="10" transform="rotate(-45 42 42)" fill="#2196F3" />
     <circle cx="35" cy="35" r="8" fill="#2196F3" />
@@ -75,12 +75,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         }`}
       >
         {/* Logo */}
-        <div className="flex h-14 items-center justify-between px-4 border-b border-white/[0.06] shrink-0">
+        <div className="flex h-16 items-center justify-between px-4 border-b border-white/[0.06] shrink-0">
           <div className="flex items-center gap-2.5">
             <AutovynLogo />
             <div>
-              <div className="text-[13px] font-extrabold tracking-widest text-white leading-none">AUTOVYN</div>
-              <div className="text-[9px] font-semibold text-orange-400 leading-none mt-0.5">Automating lives!</div>
+              <div className="text-[15px] font-extrabold tracking-widest text-white leading-none">AUTOVYN</div>
+              <div className="text-[10px] font-semibold text-orange-400 leading-none mt-1">Automating lives!</div>
             </div>
           </div>
           <button

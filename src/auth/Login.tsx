@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Mail, Lock, AlertCircle, Eye, EyeOff, CheckCircle2, Globe, MessageSquare } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, CheckCircle2, Globe, MessageSquare, ShieldCheck, Zap, Users } from 'lucide-react';
 
 // Autovyn brand logo — colorful petals on dark background
 const AutovynLogo: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -66,20 +66,36 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-[1000px] grid lg:grid-cols-[1.2fr_480px] gap-0 overflow-hidden rounded-xl border border-white/[0.08] shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10"
+      style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(79,70,229,0.12) 0%, #0b0d12 55%), #0b0d12' }}>
+      <div className="w-full max-w-[1040px] grid lg:grid-cols-[1fr_440px] gap-0 overflow-hidden rounded-xl border border-white/[0.07] shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
 
-        {/* Left panel — dark brand side */}
-        <div className="hidden lg:flex flex-col justify-between bg-[#0a0c10] border-r border-white/[0.06] p-12">
-          <div>
-            {/* Logo */}
+        {/* Left panel — brand side */}
+        <div className="hidden lg:flex flex-col justify-between relative overflow-hidden border-r border-white/[0.06] p-12"
+          style={{ background: 'linear-gradient(135deg, #0d1017 0%, #111520 100%)' }}>
+
+          {/* Subtle dot-grid pattern */}
+          <div className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)',
+              backgroundSize: '28px 28px'
+            }}
+          />
+          {/* Top-left indigo glow */}
+          <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)' }} />
+          {/* Bottom-right glow */}
+          <div className="pointer-events-none absolute -bottom-20 -right-10 w-56 h-56 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(79,70,229,0.12) 0%, transparent 70%)' }} />
+
+          <div className="relative z-10">
             <AutovynMark large={true} />
 
             <div className="mt-10 space-y-2">
-              <h1 className="text-[26px] font-bold text-white leading-snug tracking-tight">
+              <h1 className="text-[28px] font-bold text-white leading-snug tracking-tight">
                 Enterprise Support<br />Platform
               </h1>
-              <p className="text-[13px] text-white/50 leading-relaxed max-w-xs">
+              <p className="text-[13px] text-white/45 leading-relaxed max-w-xs mt-2">
                 Centralized support desk for managing agents, live chats, and customer tickets at scale.
               </p>
             </div>
@@ -87,30 +103,46 @@ const Login: React.FC = () => {
             {/* Feature list */}
             <div className="mt-10 space-y-3">
               {[
-                { icon: CheckCircle2, color: 'text-indigo-400', text: 'Role-based access for admins and agents' },
-                { icon: MessageSquare, color: 'text-emerald-400', text: 'Real-time chat monitoring & assignment' },
-                { icon: Globe, color: 'text-orange-400', text: 'Full conversation history and analytics' },
-              ].map(({ icon: Icon, color, text }) => (
+                { icon: ShieldCheck, color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', text: 'Role-based access for admins and agents' },
+                { icon: MessageSquare, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', text: 'Real-time chat monitoring & assignment' },
+                { icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', text: 'Instant notifications and live ticket routing' },
+                { icon: Users, color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/20', text: 'Full conversation history and team analytics' },
+              ].map(({ icon: Icon, color, bg, text }) => (
                 <div key={text} className="flex items-center gap-3">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/5 border border-white/10 shrink-0">
-                    <Icon className={`h-3.5 w-3.5 ${color}`} />
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg border shrink-0 ${bg}`}>
+                    <Icon className={`h-4 w-4 ${color}`} />
                   </div>
-                  <span className="text-[12px] text-white/60">{text}</span>
+                  <span className="text-[12px] text-white/55">{text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Stats row */}
+            <div className="mt-10 grid grid-cols-3 gap-3">
+              {[
+                { value: '20K+', label: 'Daily Users' },
+                { value: '99.9%', label: 'Uptime SLA' },
+                { value: '<1s', label: 'Response' },
+              ].map(({ value, label }) => (
+                <div key={label} className="rounded-lg bg-white/[0.04] border border-white/[0.06] px-3 py-2.5 text-center">
+                  <div className="text-[16px] font-bold text-indigo-300 leading-none">{value}</div>
+                  <div className="text-[10px] text-white/35 mt-1 leading-none">{label}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="mt-10 pt-6 border-t border-white/[0.06]">
-            <p className="text-[11px] text-white/25">
+          <div className="relative z-10 mt-10 pt-5 border-t border-white/[0.06]">
+            <p className="text-[10px] text-white/20">
               © {new Date().getFullYear()} Autovyn Consultancy Pvt. Ltd. — All rights reserved.
             </p>
           </div>
         </div>
 
         {/* Right panel — sign in form */}
-        <div className="flex flex-col justify-center bg-[#131619] p-8 sm:p-10">
+        <div className="flex flex-col justify-center p-8 sm:p-10"
+          style={{ background: 'linear-gradient(180deg, #13161c 0%, #0f1117 100%)' }}>
           {/* Mobile logo */}
           <div className="lg:hidden mb-8">
             <AutovynMark large={true} />

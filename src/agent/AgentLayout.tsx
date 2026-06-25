@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { useNotification } from '../notifications/NotificationProvider';
+import socketService from '../socket/socketService';
 
 const AgentLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { newTicketAlert } = useNotification();
+
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+    const handler = (ticket: any) => {
+      newTicketAlert(ticket._id || ticket.id, ticket.name || 'Unknown', ticket.issue || 'New support request');
+    };
+    socket.on('new_ticket', handler);
+    return () => { socket.off('new_ticket', handler); };
+  }, []);
 
   // Map pathnames to friendly titles for agents
   const getPageTitle = () => {
