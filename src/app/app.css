@@ -782,50 +782,99 @@
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* ─────────────────────────────
+   RESPONSIVE — LEFT SIDE FIX
+───────────────────────────── */
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   RESPONSIVE â€” MOBILE / TABLET
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 480px) {
+
   :host {
+
+    position: fixed;
+
     bottom: 16px;
-    right: 16px;
+
+    left: 16px;
+
+    right: auto;
+
   }
+
 
   .chat-window {
+
     width: calc(100vw - 32px);
+
     height: calc(100vh - 90px);
+
     max-height: calc(100vh - 90px);
+
+
     bottom: 60px;
-    right: 0;
+
+    left: 0;
+
+    right: auto;
+
+
+    transform-origin: bottom left;
+
   }
+
 
   .chat-toggle-btn {
+
     height: 44px;
+
     padding: 0 16px;
+
   }
+
 
   .chat-toggle-btn.is-open {
+
     width: 44px;
+
     padding: 0;
+
   }
+
 
   .messages-container {
+
     padding: 12px;
+
   }
+
 
   .chat-input-area {
+
     padding: 10px 12px;
+
   }
+
 }
 
+
+
 @media (max-width: 360px) {
+
+
   .chat-window {
+
     width: calc(100vw - 16px);
-    right: -8px;
+
+    left: -8px;
+
+    right: auto;
+
   }
 
+
   .header-subtitle {
+
     display: none;
+
   }
+
 }
