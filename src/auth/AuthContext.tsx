@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService, logActivity } from '../services/api';
+import socketService from '../socket/socketService';
 
 export interface AuthenticatedUser {
   userId: string;
@@ -31,7 +32,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const storedUser = localStorage.getItem('enterprise_auth_user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+        // Reconnect socket and join company room on page reload
+        socketService.connect();
+        socketService.joinCompany(null);
       } catch (e) {
         console.error('Failed to parse stored auth user', e);
         localStorage.removeItem('enterprise_auth_user');
@@ -58,6 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await authService.login(email, password);
       setUser(data);
       localStorage.setItem('enterprise_auth_user', JSON.stringify(data));
+      // Connect socket and join company room
+      socketService.connect();
+      socketService.joinCompany(null);
     } catch (error) {
       throw error;
     } finally {
@@ -69,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       logActivity(`${user.name} logged out`, user.name, user.role);
     }
+    socketService.disconnect();
     setUser(null);
     localStorage.removeItem('enterprise_auth_user');
   };
