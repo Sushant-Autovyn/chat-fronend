@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { Menu, Sun, Moon, Bell, Shield, User, LogOut } from 'lucide-react';
 
@@ -9,6 +10,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
   const { user, logout, theme, toggleTheme } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
   return (
@@ -99,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                     onClick={() => {
                       setDropdownOpen(false);
                       logout();
-                      window.location.href = '/login';
+                      navigate('/login', { replace: true });
                     }}
                     className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 transition-all"
                   >
