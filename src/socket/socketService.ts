@@ -14,13 +14,9 @@ class SocketService {
       reconnectionDelay: 1000,
     });
 
-    this.socket.on('connect', () => {
-      console.log('Socket.IO connected to support desk backend:', this.socket?.id);
-    });
+    this.socket.on('connect', () => {});
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('Socket.IO disconnected from support desk backend:', reason);
-    });
+    this.socket.on('disconnect', (_reason) => {});
 
     this.socket.on('connect_error', (error) => {
       console.error('Socket.IO connection error:', error);
@@ -33,7 +29,6 @@ class SocketService {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
-      console.log('Socket.IO connection terminated');
     }
   }
 
@@ -44,15 +39,13 @@ class SocketService {
   joinTicket(ticketId: string): void {
     if (this.socket) {
       this.socket.emit('join_ticket', { ticketId });
-      console.log(`Socket emitted join_ticket for ticket: ${ticketId}`);
     } else {
-      console.warn('Socket not connected. Cannot join ticket:', ticketId);
     }
   }
 
-  sendMessage(ticketId: string, sender: 'user' | 'support', text: string, imageUrl?: string | null): void {
+  sendMessage(ticketId: string, sender: 'user' | 'support', text: string, imageUrl?: string | null, agentName?: string | null): void {
     if (this.socket) {
-      this.socket.emit('send_message', { ticketId, sender, text, imageUrl: imageUrl ?? null });
+      this.socket.emit('send_message', { ticketId, sender, text, imageUrl: imageUrl ?? null, agentName: agentName ?? null });
     } else {
       console.warn('Socket not connected. Cannot send message.');
     }

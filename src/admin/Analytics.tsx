@@ -6,9 +6,7 @@ import {
   CheckCircle,
   Clock,
   Zap,
-  TrendingUp,
-  Filter,
-  Calendar
+  TrendingUp
 } from 'lucide-react';
 import {
   LineChart,

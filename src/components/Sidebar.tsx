@@ -11,11 +11,24 @@ import {
   LogOut,
   MessageSquare,
   User,
-  Shield,
   FileText,
   X,
-  ChevronRight
 } from 'lucide-react';
+
+const AutovynLogo: React.FC = () => (
+  <svg width="28" height="28" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="120" rx="16" fill="#0a0c10" />
+    <ellipse cx="42" cy="42" rx="18" ry="10" transform="rotate(-45 42 42)" fill="#2196F3" />
+    <circle cx="35" cy="35" r="8" fill="#2196F3" />
+    <ellipse cx="78" cy="42" rx="18" ry="10" transform="rotate(45 78 42)" fill="#4CAF50" />
+    <circle cx="85" cy="35" r="8" fill="#4CAF50" />
+    <ellipse cx="42" cy="78" rx="18" ry="10" transform="rotate(45 42 78)" fill="#FF9800" />
+    <circle cx="35" cy="85" r="8" fill="#FF9800" />
+    <ellipse cx="78" cy="78" rx="18" ry="10" transform="rotate(-45 78 78)" fill="#E91E63" />
+    <circle cx="85" cy="85" r="8" fill="#E91E63" />
+    <circle cx="60" cy="60" r="8" fill="#fff" opacity="0.12" />
+  </svg>
+);
 
 interface SidebarProps {
   isOpen: boolean;
@@ -64,10 +77,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         {/* Logo */}
         <div className="flex h-14 items-center justify-between px-4 border-b border-white/[0.06] shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-600">
-              <Shield className="h-4 w-4 text-white" />
+            <AutovynLogo />
+            <div>
+              <div className="text-[13px] font-extrabold tracking-widest text-white leading-none">AUTOVYN</div>
+              <div className="text-[9px] font-semibold text-orange-400 leading-none mt-0.5">Automating lives!</div>
             </div>
-            <span className="text-[13px] font-semibold text-white tracking-tight">Support Desk</span>
           </div>
           <button
             onClick={() => setIsOpen(false)}

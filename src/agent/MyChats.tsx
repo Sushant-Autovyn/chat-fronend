@@ -221,7 +221,7 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
     if (!text && !selectedImage) return;
     if (!selectedTicket) return;
 
-    socketService.sendMessage(selectedTicket._id, 'support', text, selectedImage);
+    socketService.sendMessage(selectedTicket._id, 'support', text, selectedImage, user?.name ?? null);
     setReplyText('');
     setSelectedImage(null);
   };

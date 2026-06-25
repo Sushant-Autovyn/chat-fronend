@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ticketService, agentService, routingService, Ticket, Agent, Message, logActivity } from '../services/api';
 import socketService from '../socket/socketService';
 import { useNotification } from '../notifications/NotificationProvider';
-import { MessageSquare, ShieldAlert, ArrowLeftRight, Ban, Send, Clock, User, CheckCircle, ArrowLeft } from 'lucide-react';
+import { MessageSquare, ShieldAlert, ArrowLeftRight, Ban, Clock, User, CheckCircle, ArrowLeft } from 'lucide-react';
 
 const LiveChats: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -54,7 +54,6 @@ const LiveChats: React.FC = () => {
   useEffect(() => {
     // 1. Listen for new tickets in real-time
     const removeNewTicketListener = socketService.onNewTicket((newTicket: Ticket) => {
-      console.log('Admin socket received new ticket:', newTicket);
       setTickets(prev => {
         if (prev.some(t => t._id === newTicket._id)) return prev;
         
@@ -70,8 +69,6 @@ const LiveChats: React.FC = () => {
 
     // 2. Listen for message updates in real-time
     const removeReceiveMessageListener = socketService.onReceiveMessage((message: any) => {
-      console.log('Admin socket received message:', message);
-      
       // Update selected ticket messages if active
       setSelectedTicket(current => {
         if (current && current._id === message.ticketId) {
@@ -97,7 +94,6 @@ const LiveChats: React.FC = () => {
 
     // 3. Listen for solved ticket status updates
     const removeTicketSolvedListener = socketService.onTicketSolved((data: { ticketId: string }) => {
-      console.log('Admin socket received ticket solved:', data.ticketId);
       setTickets(prev => prev.map(t => t._id === data.ticketId ? { ...t, status: 'solved' as const } : t));
       
       setSelectedTicket(current => {

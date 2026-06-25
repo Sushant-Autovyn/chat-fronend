@@ -1,7 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Mail, Lock, AlertCircle, Eye, Shield, CheckCircle2, Globe } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, CheckCircle2, Globe, MessageSquare } from 'lucide-react';
+
+// Autovyn brand logo — colorful petals on dark background
+const AutovynLogo: React.FC<{ size?: number }> = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="120" rx="20" fill="#0f1117" />
+    {/* Top-left petal — blue */}
+    <ellipse cx="42" cy="42" rx="18" ry="10" transform="rotate(-45 42 42)" fill="#2196F3" />
+    <circle cx="35" cy="35" r="8" fill="#2196F3" />
+    {/* Top-right petal — green */}
+    <ellipse cx="78" cy="42" rx="18" ry="10" transform="rotate(45 78 42)" fill="#4CAF50" />
+    <circle cx="85" cy="35" r="8" fill="#4CAF50" />
+    {/* Bottom-left petal — orange */}
+    <ellipse cx="42" cy="78" rx="18" ry="10" transform="rotate(45 42 78)" fill="#FF9800" />
+    <circle cx="35" cy="85" r="8" fill="#FF9800" />
+    {/* Bottom-right petal — pink/red */}
+    <ellipse cx="78" cy="78" rx="18" ry="10" transform="rotate(-45 78 78)" fill="#E91E63" />
+    <circle cx="85" cy="85" r="8" fill="#E91E63" />
+    {/* Center connector */}
+    <circle cx="60" cy="60" r="8" fill="#fff" opacity="0.15" />
+  </svg>
+);
+
+// Sidebar brand mark — smaller version for the top of login form
+const AutovynMark: React.FC = () => (
+  <div className="flex items-center gap-3">
+    <AutovynLogo size={40} />
+    <div>
+      <div className="text-[18px] font-extrabold tracking-widest text-white leading-none">AUTOVYN</div>
+      <div className="text-[11px] font-semibold text-orange-400 leading-none mt-0.5">Automating lives!</div>
+    </div>
+  </div>
+);
 
 const Login: React.FC = () => {
   const { login, isAuthenticated, user } = useAuth();
@@ -22,12 +54,7 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
+    if (!email || !password) { setError('Please fill in all fields'); return; }
     setLoading(true);
     try {
       await login(email, password);
@@ -39,134 +66,135 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f1f5fb] text-slate-950 px-3 py-8">
-      <div className="mx-auto grid max-w-[980px] gap-0 overflow-hidden rounded-[1.75rem] bg-white shadow-[0_26px_60px_rgba(15,23,42,0.12)] lg:grid-cols-[1.02fr_0.98fr]">
-        <section className="relative overflow-hidden bg-[#f8fafc] p-4 sm:p-6 lg:p-8">
-          <div className="absolute inset-y-0 left-0 w-1/2 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.08),transparent_28%)]" />
-          <div className="relative z-10 flex flex-col justify-between py-6 lg:py-8">
-            <div className="space-y-6 max-w-lg">
-              <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-                <Shield className="h-4 w-4 text-indigo-600" />
-                Enterprise Support Desk
-              </div>
+    <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-[920px] grid lg:grid-cols-[1fr_420px] gap-0 overflow-hidden rounded-xl border border-white/[0.07] shadow-2xl">
 
-              <div className="space-y-3">
-                <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-                  One platform for smarter customer support
-                </h1>
-                <p className="max-w-lg text-sm leading-7 text-slate-600">
-                  Streamline chat, manage agents, and deliver fast, personalized service with a unified support desk.
-                </p>
-              </div>
+        {/* Left panel — dark brand side */}
+        <div className="hidden lg:flex flex-col justify-between bg-[#0f1117] border-r border-white/[0.06] p-10">
+          <div>
+            {/* Logo */}
+            <AutovynMark />
 
-              <div className="grid gap-3">
-                <div className="flex items-start gap-3 rounded-[1.75rem] bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 text-white">
-                    <CheckCircle2 className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Secure agent access</p>
-                    <p className="mt-1 text-sm leading-6 text-slate-500">Centralized sign-in and permissions for every team member.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 rounded-[1.75rem] bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-600 text-white">
-                    <Globe className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Live chat visibility</p>
-                    <p className="mt-1 text-sm leading-6 text-slate-500">Monitor conversations and customer requests in real time.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 rounded-[1.75rem] bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600 text-white">
-                    <Mail className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Faster ticket resolution</p>
-                    <p className="mt-1 text-sm leading-6 text-slate-500">Help agents close requests quickly with centralized tools.</p>
-                  </div>
-                </div>
-              </div>
+            <div className="mt-10 space-y-2">
+              <h1 className="text-[26px] font-bold text-white leading-snug tracking-tight">
+                Enterprise Support<br />Platform
+              </h1>
+              <p className="text-[13px] text-white/50 leading-relaxed max-w-xs">
+                Centralized support desk for managing agents, live chats, and customer tickets at scale.
+              </p>
             </div>
 
-          </div>
-        </section>
-
-        <section className="flex items-center justify-center bg-white p-6 sm:p-8 lg:p-10">
-          <div className="w-full max-w-lg rounded-[1.75rem] bg-white shadow-[0_34px_100px_rgba(15,23,42,0.08)]">
-            <div className="p-8 sm:p-10">
-              <div className="mb-8 flex flex-col gap-3 text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 shadow-[0_20px_40px_rgba(99,102,241,0.15)]">
-                  <Shield className="h-7 w-7" />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-semibold tracking-tight text-slate-950">Welcome Back</h2>
-                  <p className="mt-2 text-sm text-slate-500">Sign in to your account to continue</p>
-                </div>
-              </div>
-
-              {error && (
-                <div className="mb-6 rounded-3xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="mt-0.5 h-5 w-5" />
-                    <span>{error}</span>
+            {/* Feature list */}
+            <div className="mt-10 space-y-3">
+              {[
+                { icon: CheckCircle2, color: 'text-indigo-400', text: 'Role-based access for admins and agents' },
+                { icon: MessageSquare, color: 'text-emerald-400', text: 'Real-time chat monitoring & assignment' },
+                { icon: Globe, color: 'text-orange-400', text: 'Full conversation history and analytics' },
+              ].map(({ icon: Icon, color, text }) => (
+                <div key={text} className="flex items-center gap-3">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/5 border border-white/10 shrink-0">
+                    <Icon className={`h-3.5 w-3.5 ${color}`} />
                   </div>
+                  <span className="text-[12px] text-white/60">{text}</span>
                 </div>
-              )}
+              ))}
+            </div>
+          </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <label className="block text-sm font-medium text-slate-700">Email Address</label>
-                <div className="relative">
-                  <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    placeholder="Enter your email"
-                    className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-12 py-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                  />
-                </div>
+          {/* Footer */}
+          <div className="mt-10 pt-6 border-t border-white/[0.06]">
+            <p className="text-[11px] text-white/25">
+              © {new Date().getFullYear()} Autovyn Consultancy Pvt. Ltd. — All rights reserved.
+            </p>
+          </div>
+        </div>
 
-                <label className="block text-sm font-medium text-slate-700">Password</label>
-                <div className="relative">
-                  <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
-                    placeholder="Enter your password"
-                    className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-12 py-4 pr-16 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </button>
-                </div>
+        {/* Right panel — sign in form */}
+        <div className="flex flex-col justify-center bg-[#111318] p-8 sm:p-10">
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8">
+            <AutovynMark />
+          </div>
 
-                <div className="flex items-center gap-3">
-                  <label className="inline-flex items-center gap-2 text-sm text-slate-500">
-                    <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-indigo-600" />
-                    Remember me
-                  </label>
-                </div>
+          <div className="mb-8">
+            <h2 className="text-[22px] font-bold text-white tracking-tight">Sign in</h2>
+            <p className="text-[12px] text-white/40 mt-1">Enter your credentials to access the dashboard</p>
+          </div>
 
-                <button
-                  type="submit"
+          {error && (
+            <div className="mb-5 flex items-start gap-2.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-3.5 py-3 text-[12px] text-rose-400">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">
+                Email address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25 pointer-events-none" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
-                  className="flex w-full items-center justify-center rounded-3xl bg-indigo-600 px-5 py-4 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(99,102,241,0.25)] transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {loading ? 'Signing in...' : 'Sign In to Dashboard'}
-                </button>
-              </form>
+                  placeholder="you@autovyn.com"
+                  className="w-full rounded-md border border-white/[0.1] bg-white/[0.05] pl-9 pr-4 py-2.5 text-[13px] text-white placeholder-white/25 outline-none transition focus:border-indigo-500 focus:bg-white/[0.08] disabled:opacity-50"
+                />
+              </div>
             </div>
-          </div>
-        </section>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25 pointer-events-none" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  placeholder="••••••••"
+                  className="w-full rounded-md border border-white/[0.1] bg-white/[0.05] pl-9 pr-10 py-2.5 text-[13px] text-white placeholder-white/25 outline-none transition focus:border-indigo-500 focus:bg-white/[0.08] disabled:opacity-50"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 text-indigo-600 accent-indigo-600" />
+                <span className="text-[12px] text-white/40">Remember me</span>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-md bg-indigo-600 py-2.5 text-[13px] font-semibold text-white transition hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in...
+                </span>
+              ) : 'Sign in'}
+            </button>
+          </form>
+
+          <p className="mt-8 text-[11px] text-white/20 text-center">
+            Autovyn Consultancy Pvt. Ltd. · Enterprise Support Platform
+          </p>
+        </div>
       </div>
     </div>
   );
