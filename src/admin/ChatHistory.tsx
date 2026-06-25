@@ -22,6 +22,7 @@ const ChatHistory: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadHistoryData = async () => {
@@ -306,13 +307,23 @@ const ChatHistory: React.FC = () => {
                       }`}
                     >
                       <div
-                        className={`px-3.5 py-2 rounded-xl text-sm leading-relaxed ${
+                        className={`rounded-xl text-sm leading-relaxed overflow-hidden ${
+                          msg.imageUrl && !msg.text ? '' : 'px-3.5 py-2'
+                        } ${
                           isSupport
                             ? 'bg-primary text-white rounded-tr-none'
                             : 'bg-card text-foreground border border-border rounded-tl-none'
                         }`}
                       >
-                        {msg.text}
+                        {msg.imageUrl && (
+                          <img
+                            src={msg.imageUrl}
+                            alt="Shared image"
+                            className="max-w-[220px] max-h-48 rounded-lg object-cover cursor-zoom-in block"
+                            onClick={() => setFullscreenImage(msg.imageUrl!)}
+                          />
+                        )}
+                        {msg.text && <span className={msg.imageUrl ? 'block px-3.5 py-2 pt-1' : ''}>{msg.text}</span>}
                       </div>
                       <span className="text-[9px] text-muted-foreground mt-1 px-1">
                         {isSupport ? 'Support Agent' : selectedTicket.name} • {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}
@@ -336,6 +347,29 @@ const ChatHistory: React.FC = () => {
           </div>
         )}
       </Modal>
+
+      {/* Fullscreen image viewer */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <img
+            src={fullscreenImage}
+            alt="Full size"
+            className="max-w-full max-h-full rounded-xl object-contain shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };

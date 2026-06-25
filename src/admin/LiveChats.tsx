@@ -20,6 +20,7 @@ const LiveChats: React.FC = () => {
   const [selectedAgentForTransfer, setSelectedAgentForTransfer] = useState('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   // Load initial data
   useEffect(() => {
@@ -205,6 +206,7 @@ const LiveChats: React.FC = () => {
   };
 
   return (
+    <>
     <div className="flex h-[calc(100vh-140px)] gap-0 lg:gap-6 overflow-hidden select-none">
       {/* Left Column: Active Chats Queue */}
       <div className={`w-full lg:w-96 rounded-2xl border border-border bg-card shadow-sm flex flex-col h-full overflow-hidden shrink-0 ${showChat ? 'hidden lg:flex' : 'flex'}`}>
@@ -391,13 +393,23 @@ const LiveChats: React.FC = () => {
                     }`}
                   >
                     <div
-                      className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed ${
+                      className={`rounded-2xl text-sm font-medium leading-relaxed overflow-hidden shadow-sm ${
+                        msg.imageUrl && !msg.text ? '' : 'px-4 py-2.5'
+                      } ${
                         isSupport
-                          ? 'bg-primary text-white rounded-tr-none shadow-sm'
-                          : 'bg-card text-foreground border border-border rounded-tl-none shadow-sm'
+                          ? 'bg-primary text-white rounded-tr-none'
+                          : 'bg-card text-foreground border border-border rounded-tl-none'
                       }`}
                     >
-                      {msg.text}
+                      {msg.imageUrl && (
+                        <img
+                          src={msg.imageUrl}
+                          alt="Shared image"
+                          className="max-w-[240px] max-h-52 rounded-xl object-cover cursor-zoom-in block"
+                          onClick={() => setFullscreenImage(msg.imageUrl!)}
+                        />
+                      )}
+                      {msg.text && <span className={msg.imageUrl ? 'block px-4 py-2 pt-1' : ''}>{msg.text}</span>}
                     </div>
                     <span className="text-[9px] text-muted-foreground mt-1.5 px-1 font-semibold">
                       {isSupport ? 'Support' : selectedTicket.name} • {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'Sending...'}
@@ -427,6 +439,30 @@ const LiveChats: React.FC = () => {
         )}
       </div>
     </div>
+
+      {/* Fullscreen image viewer */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <img
+            src={fullscreenImage}
+            alt="Full size"
+            className="max-w-full max-h-full rounded-xl object-contain shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </>
   );
 };
 
