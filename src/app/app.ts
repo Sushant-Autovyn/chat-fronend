@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { io } from 'socket.io-client';
@@ -29,7 +29,10 @@ export class App implements OnInit, OnDestroy {
 
   chatInput = new FormControl('');
 
-  messages = signal<{sender: 'user' | 'support', text: string, createdAt?: Date | string}[]>([]);
+  messages = signal<{sender: 'user' | 'support', text: string, imageUrl?: string | null, createdAt?: Date | string}[]>([]);
+  selectedImage = signal<string | null>(null);
+  fullscreenImage = signal<string | null>(null);
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
   ngOnInit() {
     this.restoreSession();
@@ -132,6 +135,8 @@ export class App implements OnInit, OnDestroy {
     this.sessionResolved.set(false);
     this.ticketId.set(null);
     this.messages.set([]);
+    this.selectedImage.set(null);
+    this.fullscreenImage.set(null);
     this.userDetailsForm.reset();
   }
 
@@ -246,30 +251,72 @@ export class App implements OnInit, OnDestroy {
     }
   }
 
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be under 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.selectedImage.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  clearSelectedImage(): void {
+    this.selectedImage.set(null);
+  }
+
+  triggerImagePicker(): void {
+    this.fileInputRef.nativeElement.click();
+  }
+
+  openImageFullscreen(url: string): void {
+    this.fullscreenImage.set(url);
+  }
+
+  closeImageFullscreen(): void {
+    this.fullscreenImage.set(null);
+  }
+
   sendMessage() {
     if (this.sessionResolved()) {
       console.warn('Session already resolved; ignoring send.');
       return;
     }
 
-    const text = this.chatInput.value;
+    const text = this.chatInput.value?.trim() || '';
+    const imageUrl = this.selectedImage();
     const currentTicketId = this.ticketId();
-    if (text && text.trim() && currentTicketId) {
-      const cleanText = text.trim();
-      
-      // Optimistic local update
-      this.messages.update(msgs => [...msgs, { sender: 'user', text: cleanText }]);
-      this.chatInput.reset();
 
-      if (this.socket) {
-        this.socket.emit('send_message', {
-          ticketId: currentTicketId,
-          sender: 'user',
-          text: cleanText
-        });
-      } else {
-        console.error('Socket not connected, cannot send message');
-      }
+    if (!currentTicketId) return;
+    if (!text && !imageUrl) return;
+
+    // Optimistic local update
+    this.messages.update(msgs => [...msgs, { sender: 'user', text, imageUrl }]);
+    this.chatInput.reset();
+    this.selectedImage.set(null);
+
+    if (this.socket) {
+      this.socket.emit('send_message', {
+        ticketId: currentTicketId,
+        sender: 'user',
+        text,
+        imageUrl
+      });
+    } else {
+      console.error('Socket not connected, cannot send message');
     }
   }
 }
