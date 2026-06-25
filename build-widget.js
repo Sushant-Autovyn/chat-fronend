@@ -45,12 +45,23 @@ async function buildWidget() {
     }
 
     const cssPath = path.join(browserPath, 'styles.css');
-    if (fs.existsSync(cssPath)) {
-        const widgetCssPath = path.join(finalDistPath, 'styles.css');
-        fs.copyFileSync(cssPath, widgetCssPath);
-        if (fs.existsSync(publicPath)) {
-          fs.copyFileSync(cssPath, path.join(publicPath, 'styles.css'));
-        }
+    const componentCssPath = path.join(__dirname, 'src', 'app', 'app.css');
+    const widgetCssPath = path.join(finalDistPath, 'styles.css');
+
+    if (fs.existsSync(componentCssPath)) {
+      const componentCss = fs
+        .readFileSync(componentCssPath, 'utf8')
+        .replace(/^:host\s*\{/m, 'support-chat-widget {');
+
+      fs.writeFileSync(widgetCssPath, componentCss, 'utf8');
+      if (fs.existsSync(publicPath)) {
+        fs.writeFileSync(path.join(publicPath, 'styles.css'), componentCss, 'utf8');
+      }
+    } else if (fs.existsSync(cssPath)) {
+      fs.copyFileSync(cssPath, widgetCssPath);
+      if (fs.existsSync(publicPath)) {
+        fs.copyFileSync(cssPath, path.join(publicPath, 'styles.css'));
+      }
     }
     
     const testHtmlSource = path.join(__dirname, 'test-widget.html');
