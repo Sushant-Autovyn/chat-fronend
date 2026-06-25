@@ -146,7 +146,7 @@ textarea {
   flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 28px;
+  border-radius: 9px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 255, 0.9));
   box-shadow: var(--shadow-panel);
   backdrop-filter: blur(22px);
