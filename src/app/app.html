@@ -1,158 +1,177 @@
 <div class="chat-widget-container">
-
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       FLOATING ACTION BUTTON
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <button class="chat-toggle-btn" (click)="toggleChat()" [class.is-open]="isOpen()" aria-label="Toggle support chat">
-    <!-- Chat icon (closed state) -->
     <span class="fab-icon-wrap" *ngIf="!isOpen()">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-      <span class="fab-label">Support</span>
+      <span class="fab-avatar">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <path d="M8 10h.01"/>
+          <path d="M12 10h.01"/>
+          <path d="M16 10h.01"/>
+        </svg>
+      </span>
+      <span class="fab-copy">
+        <span class="fab-label">Support</span>
+      </span>
     </span>
-    <!-- Close icon (open state) -->
     <span class="fab-icon-wrap" *ngIf="isOpen()">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="icon">
         <line x1="18" y1="6" x2="6" y2="18"/>
         <line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </span>
   </button>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       CHAT WINDOW
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="chat-window" [class.is-open]="isOpen()" role="dialog" aria-label="Support Chat">
-
-    <!-- â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="chat-header">
-      <div class="header-brand">
-        <div class="header-avatar">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/>
-          </svg>
-        </div>
-        <div class="header-info">
-          <div class="header-name-row">
-            <h3 class="header-title">chat-support</h3>
+      <div class="header-top">
+        <div class="header-brand">
+          <div class="header-avatar" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8V4H8"/>
+              <rect width="16" height="12" x="4" y="8" rx="4"/>
+              <path d="M2 14h2"/>
+              <path d="M20 14h2"/>
+              <path d="M15 13v2"/>
+              <path d="M9 13v2"/>
+            </svg>
+            <span class="avatar-status"></span>
           </div>
+          <div class="header-info">
+            <h3 class="header-title">Hi there! 👋</h3>
+            <p class="header-question">How can we help you today?</p>
+            <div class="online-badge">
+              <span class="online-dot"></span>
+              We typically reply in a few minutes
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button type="button" class="icon-btn" (click)="toggleChat()" aria-label="Close support chat">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </button>
         </div>
       </div>
-      <button class="header-close-btn" (click)="toggleChat()" aria-label="Close chat">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
     </div>
 
-    <!-- â”€â”€ BODY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="chat-body">
-
-      <!-- PRE-CHAT FORM -->
       <div class="form-container" *ngIf="!isFormSubmitted()">
-        <div class="form-intro">
-          <div class="form-intro-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
+        <div class="security-card">
+          <div class="security-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+              <path d="m9 12 2 2 4-4"/>
             </svg>
           </div>
-          <h4 class="form-title">Start a Conversation</h4>
-          <p class="form-description">Please fill in your details and we'll connect you with a support specialist right away.</p>
+          <div>
+            <h4>Your information is safe with us</h4>
+            <p>All data is encrypted and used only to assist you better.</p>
+          </div>
         </div>
 
         <form [formGroup]="userDetailsForm" (ngSubmit)="submitDetails()" class="contact-form">
           <div class="form-group">
             <label for="name">Full Name <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            <div class="input-shell" [class.has-error]="isControlInvalid('name')">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM2 22a10 10 0 0120 0H2z"/>
               </svg>
               <input id="name" type="text" formControlName="name" placeholder="John Doe" autocomplete="name">
             </div>
+            <p class="field-error" *ngIf="isControlInvalid('name')">Please enter your full name.</p>
           </div>
 
           <div class="form-group">
             <label for="email">Email Address <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            <div class="input-shell" [class.has-error]="isControlInvalid('email')">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2 6.5A2.5 2.5 0 014.5 4h15A2.5 2.5 0 0122 6.5v11a2.5 2.5 0 01-2.5 2.5h-15A2.5 2.5 0 012 17.5v-11zm2.26-.5L12 11.38 19.74 6H4.26zM20 8.08l-7.43 5.16a1 1 0 01-1.14 0L4 8.08V17.5a.5.5 0 00.5.5h15a.5.5 0 00.5-.5V8.08z"/>
               </svg>
               <input id="email" type="email" formControlName="email" placeholder="john@company.com" autocomplete="email">
             </div>
+            <p class="field-error" *ngIf="isControlInvalid('email')">Enter a valid email address.</p>
           </div>
 
           <div class="form-group">
             <label for="phone">Phone Number <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 17.92z"/>
+            <div class="input-shell" [class.has-error]="isControlInvalid('phone')">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6.62 10.79a15.91 15.91 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.58.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.58 1 1 0 01-.24 1.01l-2.21 2.2z"/>
               </svg>
               <input id="phone" type="tel" formControlName="phone" placeholder="+1 234 567 890" autocomplete="tel">
             </div>
+            <p class="field-error" *ngIf="isControlInvalid('phone')">Please add a phone number.</p>
           </div>
 
           <div class="form-group">
-            <label for="issue">Describe Your Issue <span class="required">*</span></label>
-            <textarea id="issue" formControlName="issue" placeholder="What can we help you with today?" rows="3"></textarea>
+            <label for="issue">Issue Description <span class="required">*</span></label>
+            <div class="input-shell textarea-shell" [class.has-error]="isControlInvalid('issue')">
+              <svg class="input-icon textarea-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4 4h16a2 2 0 012 2v9a2 2 0 01-2 2H8l-5 4V6a2 2 0 012-2z"/>
+              </svg>
+              <textarea id="issue" formControlName="issue" placeholder="What can we help you with today?" rows="3"></textarea>
+            </div>
+            <p class="field-error" *ngIf="isControlInvalid('issue')">Tell us briefly what you need help with.</p>
           </div>
 
-          <button type="submit" class="btn-start-chat" [disabled]="!userDetailsForm.valid">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="submit" class="btn-start-chat" [disabled]="!userDetailsForm.valid || isSubmitting()">
+            <span class="button-spinner" *ngIf="isSubmitting()"></span>
+            <svg *ngIf="!isSubmitting()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
             </svg>
-            Start Live Chat Session
+            {{ isSubmitting() ? 'Connecting...' : 'Start Chat' }}
           </button>
         </form>
       </div>
 
-      <!-- CHAT INTERFACE -->
       <div class="chat-interface" *ngIf="isFormSubmitted()">
-
-        <!-- Session Info Banner -->
         <div class="session-banner" [class.resolved]="sessionResolved()">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-.53 14.03a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V8.25a.75.75 0 00-1.5 0v5.69l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3z" clip-rule="evenodd"/>
-          </svg>
-          <span *ngIf="!sessionResolved()">Live session active â€” a support agent will join shortly</span>
+          <span class="session-dot"></span>
+          <span *ngIf="!sessionResolved()">Live session active - a support agent will join shortly</span>
           <span *ngIf="sessionResolved()">This conversation has been resolved. Thank you for chatting with us.</span>
         </div>
 
-        <!-- Messages -->
         <div class="messages-container" id="messages-scroll">
+          <div class="empty-conversation" *ngIf="messages().length === 0 && !sessionResolved()">
+            <div class="typing-indicator" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <p>Preparing your secure support conversation...</p>
+          </div>
+
           <div
             class="message-row"
             *ngFor="let msg of messages()"
             [class.row-user]="msg.sender === 'user'"
             [class.row-support]="msg.sender === 'support'"
           >
-            <!-- Bot avatar (support side) -->
             <div class="msg-avatar support-avatar" *ngIf="msg.sender === 'support'">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/>
+                <path d="M12 2a7 7 0 00-7 7v2a5 5 0 005 5h1v-4H8V9a4 4 0 118 0v3h-3v4h1a5 5 0 005-5V9a7 7 0 00-7-7zM8 18h8v2H8v-2z"/>
               </svg>
             </div>
 
-            <!-- Message bubble -->
             <div class="message-content">
               <span class="msg-sender-label" *ngIf="msg.sender === 'support'">Support Agent</span>
               <span class="msg-sender-label user-label" *ngIf="msg.sender === 'user'">You</span>
               <div class="message-bubble" [class.bubble-user]="msg.sender === 'user'" [class.bubble-support]="msg.sender === 'support'">
                 {{ msg.text }}
               </div>
+              <span class="message-time">{{ formatMessageTime(msg.createdAt) }}</span>
             </div>
 
-            <!-- User avatar -->
             <div class="msg-avatar user-avatar" *ngIf="msg.sender === 'user'">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd"/>
+                <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM2 22a10 10 0 0120 0H2z"/>
               </svg>
             </div>
           </div>
         </div>
 
-        <!-- Input Footer -->
         <div class="chat-footer" *ngIf="!sessionResolved()">
           <div class="chat-input-area">
             <input
@@ -175,21 +194,21 @@
             </button>
           </div>
           <div class="chat-footer-branding">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.75.75 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
-            </svg>
+            <span class="brand-lock">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm-3 8V7a3 3 0 016 0v3H9z"/>
+              </svg>
+            </span>
             <span>Secured &amp; powered by <strong>Enterprise Support</strong></span>
           </div>
         </div>
+
         <div class="resolved-actions" *ngIf="sessionResolved()">
           <button class="btn-start-chat resolved-button" (click)="resetChat()" type="button">
             Start a new chat
           </button>
         </div>
       </div>
-
-    </div><!-- /chat-body -->
-  </div><!-- /chat-window -->
-
-</div><!-- /chat-widget-container -->
-
+    </div>
+  </div>
+</div>

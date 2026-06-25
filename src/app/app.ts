@@ -15,6 +15,7 @@ export class App implements OnInit, OnDestroy {
 
   isOpen = signal(false);
   isFormSubmitted = signal(false);
+  isSubmitting = signal(false);
   sessionResolved = signal(false);
   ticketId = signal<string | null>(null);
   private socket: any;
@@ -40,6 +41,24 @@ export class App implements OnInit, OnDestroy {
 
   toggleChat() {
     this.isOpen.update(v => !v);
+  }
+
+  isControlInvalid(controlName: 'name' | 'email' | 'phone' | 'issue'): boolean {
+    const control = this.userDetailsForm.controls[controlName];
+    return control.invalid && (control.dirty || control.touched);
+  }
+
+  formatMessageTime(createdAt?: Date | string): string {
+    const date = createdAt ? new Date(createdAt) : new Date();
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
   disconnectSocket() {
@@ -109,6 +128,7 @@ export class App implements OnInit, OnDestroy {
     this.disconnectSocket();
     this.clearStoredTicket();
     this.isFormSubmitted.set(false);
+    this.isSubmitting.set(false);
     this.sessionResolved.set(false);
     this.ticketId.set(null);
     this.messages.set([]);
@@ -179,7 +199,13 @@ export class App implements OnInit, OnDestroy {
   }
 
   submitDetails() {
+    if (this.userDetailsForm.invalid) {
+      this.userDetailsForm.markAllAsTouched();
+      return;
+    }
+
     if (this.userDetailsForm.valid) {
+      this.isSubmitting.set(true);
       const formData = this.userDetailsForm.value;
       
           fetch('https://chat-support-backend-xhfd.onrender.com/api/tickets', {
@@ -205,6 +231,9 @@ export class App implements OnInit, OnDestroy {
         console.error('Error submitting form:', err);
         // Fallback transition
         this.isFormSubmitted.set(true);
+      })
+      .finally(() => {
+        this.isSubmitting.set(false);
       });
     }
   }
