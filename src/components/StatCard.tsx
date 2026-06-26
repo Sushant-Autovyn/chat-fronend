@@ -14,21 +14,49 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color = 'primary', trend }) => {
-  const iconColors = {
-    primary: 'text-indigo-500',
-    success: 'text-emerald-500',
-    warning: 'text-amber-500',
-    danger: 'text-rose-500',
-    info: 'text-sky-500',
+  const palette = {
+    primary: {
+      strip: 'bg-blue-500',
+      iconBg: 'bg-blue-50',
+      iconText: 'text-blue-600',
+    },
+    success: {
+      strip: 'bg-emerald-500',
+      iconBg: 'bg-emerald-50',
+      iconText: 'text-emerald-600',
+    },
+    warning: {
+      strip: 'bg-amber-400',
+      iconBg: 'bg-amber-50',
+      iconText: 'text-amber-600',
+    },
+    danger: {
+      strip: 'bg-rose-500',
+      iconBg: 'bg-rose-50',
+      iconText: 'text-rose-600',
+    },
+    info: {
+      strip: 'bg-sky-500',
+      iconBg: 'bg-sky-50',
+      iconText: 'text-sky-600',
+    },
   };
 
+  const { strip, iconBg, iconText } = palette[color];
+
   return (
-    <div className="rounded-lg border border-border bg-card px-4 py-4 flex flex-col gap-3 hover:border-border/80 transition-colors">
-      <div className="flex items-center justify-between">
+    <div className="relative rounded-lg border border-border bg-card overflow-hidden flex flex-col gap-3 px-4 py-4 hover:shadow-sm transition-shadow">
+      {/* Left color strip */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${strip}`} />
+
+      <div className="flex items-center justify-between pl-1">
         <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{title}</span>
-        <Icon className={`h-4 w-4 ${iconColors[color]}`} />
+        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${iconBg}`}>
+          <Icon className={`h-4 w-4 ${iconText}`} />
+        </div>
       </div>
-      <div>
+
+      <div className="pl-1">
         <p className="text-2xl font-bold text-foreground tabular-nums">{value}</p>
         {trend && (
           <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -37,7 +65,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color = '
             ) : (
               <TrendingDown className="h-3 w-3 text-rose-500" />
             )}
-            <span className={trend.isPositive ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-rose-500 font-semibold'}>
+            <span className={trend.isPositive ? 'text-emerald-600 font-semibold' : 'text-rose-500 font-semibold'}>
               {trend.value}
             </span>
             <span>{trend.label}</span>

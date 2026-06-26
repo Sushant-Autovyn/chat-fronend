@@ -11,14 +11,11 @@ const AdminLayout: React.FC = () => {
   const { newTicketAlert } = useNotification();
 
   useEffect(() => {
-    const socket = socketService.getSocket();
-    if (!socket) return;
-    const handler = (ticket: any) => {
+    const off = socketService.onNewTicket((ticket: any) => {
       newTicketAlert(ticket._id || ticket.id, ticket.name || 'Unknown', ticket.issue || 'New support request');
-    };
-    socket.on('new_ticket', handler);
-    return () => { socket.off('new_ticket', handler); };
-  }, []);
+    });
+    return off;
+  }, [newTicketAlert]);
 
   // Map pathnames to friendly titles
   const getPageTitle = () => {

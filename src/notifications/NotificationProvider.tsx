@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { CheckCircle2, AlertCircle, Info, X, MessageSquarePlus } from 'lucide-react';
 import Modal from '../components/Modal';
 
@@ -61,11 +61,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     window.setTimeout(() => removeNotification(id), 4500);
   };
 
-  const newTicketAlert = (ticketId: string, name: string, issue: string) => {
+  const newTicketAlert = useCallback((ticketId: string, name: string, issue: string) => {
     const id = `ticket-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setTicketAlerts((current) => [...current.slice(-2), { id, name, issue, ticketId }]);
     window.setTimeout(() => removeTicketAlert(id), 9000);
-  };
+  }, []);
 
   const confirm = (message: string, options?: ConfirmOptions) =>
     new Promise<boolean>((resolve) => {
@@ -88,7 +88,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       confirm,
       newTicketAlert,
     }),
-    []
+    [newTicketAlert]
   );
 
   const confirmText = confirmState?.options?.confirmText || 'Confirm';
