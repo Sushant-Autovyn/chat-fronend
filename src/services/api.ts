@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://chat-support-backend-xhfd.onrender.com/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://bot.autovyn.ai/api';
 
 export const backendApi: AxiosInstance = axios.create({
   baseURL: BACKEND_URL,

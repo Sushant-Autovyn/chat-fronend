@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import type { Ticket, Message } from '../services/api';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://chat-support-backend-xhfd.onrender.com';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://bot.autovyn.ai';
 
 class SocketService {
   private socket: Socket | null = null;
