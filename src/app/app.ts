@@ -32,6 +32,17 @@ export class App implements OnInit, OnDestroy, AfterViewChecked {
   messages = signal<ChatMessage[]>([]);
   selectedImage = signal<string | null>(null);
   fullscreenImage = signal<string | null>(null);
+  showEmojiPicker = signal(false);
+
+  readonly quickReplies = [
+    "Still waiting for a response",
+    "This issue is urgent!",
+    "Can you check again? 🔍",
+    "Thank you! 🙏",
+    "I have a follow-up question",
+  ];
+
+  readonly emojis = ['😊','👋','👍','✅','❌','🙏','😔','🎉','⏳','🔄','💡','✍️','📝','😄','🫡','💬','⚡','🔍','🤝','📞'];
 
   private socket: any = null;
   private shouldScrollToBottom = false;
@@ -304,6 +315,26 @@ export class App implements OnInit, OnDestroy, AfterViewChecked {
 
   clearSelectedImage(): void {
     this.selectedImage.set(null);
+  }
+
+  insertQuickReply(text: string): void {
+    this.chatInput.setValue(text);
+  }
+
+  toggleEmojiPicker(): void {
+    this.showEmojiPicker.update(v => !v);
+  }
+
+  insertEmoji(emoji: string): void {
+    const current = this.chatInput.value ?? '';
+    this.chatInput.setValue(current + emoji);
+    this.showEmojiPicker.set(false);
+  }
+
+  getSuggestions(): string[] {
+    const text = this.chatInput.value?.toLowerCase().trim() ?? '';
+    if (text.length < 2) return [];
+    return this.quickReplies.filter(r => r.toLowerCase().includes(text)).slice(0, 3);
   }
 
   onPaste(event: ClipboardEvent): void {

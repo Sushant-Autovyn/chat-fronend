@@ -597,7 +597,7 @@ textarea {
 .message-row {
   display: flex;
   align-items: flex-end;
-  gap: 9px;
+  gap: 6px;
   opacity: 0;
   animation: msgIn 240ms ease forwards;
 }
@@ -656,13 +656,12 @@ textarea {
 .message-time {
   padding: 0 4px;
   font-size: 0.66rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text-muted);
 }
 
 .msg-sender-label {
-  text-transform: uppercase;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
 }
 
 .msg-sender-label.user-label {
@@ -821,6 +820,89 @@ textarea {
   width: 17px;
   height: 17px;
   pointer-events: none;
+}
+
+/* ── Quick replies & suggestions ───────────────────────────────────────────── */
+.quick-replies-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  padding: 8px 12px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.quick-replies-bar::-webkit-scrollbar { display: none; }
+
+.quick-reply-chip {
+  flex-shrink: 0;
+  padding: 4px 11px;
+  border-radius: 20px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 140ms, border-color 140ms;
+}
+.quick-reply-chip:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.suggestion-chip {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+.suggestion-chip:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+/* ── Emoji picker ──────────────────────────────────────────────────────────── */
+.emoji-btn-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.emoji-toggle {
+  /* inherits .attach-btn styles */
+}
+
+.emoji-picker {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 8px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(18, 38, 79, 0.18);
+  width: 192px;
+}
+
+.emoji-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 120ms;
+}
+.emoji-item:hover {
+  background: #f1f5f9;
 }
 
 /* Image preview bar above input */

@@ -115,7 +115,7 @@
           <button type="submit" class="btn-start-chat" [disabled]="!userDetailsForm.valid || isSubmitting()">
             <span class="button-spinner" *ngIf="isSubmitting()"></span>
             <svg *ngIf="!isSubmitting()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
             </svg>
             {{ isSubmitting() ? 'Connecting...' : 'Start Chat' }}
           </button>
@@ -145,11 +145,6 @@
             [class.row-user]="msg.sender === 'user'"
             [class.row-support]="msg.sender === 'support'"
           >
-            <div class="msg-avatar support-avatar" *ngIf="msg.sender === 'support'">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2a7 7 0 00-7 7v2a5 5 0 005 5h1v-4H8V9a4 4 0 118 0v3h-3v4h1a5 5 0 005-5V9a7 7 0 00-7-7zM8 18h8v2H8v-2z"/>
-              </svg>
-            </div>
 
             <div class="message-content">
               <span class="msg-sender-label" *ngIf="msg.sender === 'support'">{{ msg.agentName || 'Support Agent' }}</span>
@@ -164,6 +159,14 @@
         </div>
 
         <div class="chat-footer" *ngIf="!sessionResolved()">
+          <!-- Quick replies / suggestions -->
+          <div class="quick-replies-bar" *ngIf="chatInput.value!.length < 2">
+            <button *ngFor="let r of quickReplies" class="quick-reply-chip" type="button" (click)="insertQuickReply(r)">{{r}}</button>
+          </div>
+          <div class="quick-replies-bar" *ngIf="getSuggestions().length > 0">
+            <button *ngFor="let s of getSuggestions()" class="quick-reply-chip suggestion-chip" type="button" (click)="insertQuickReply(s)">{{s}}</button>
+          </div>
+
           <div class="image-preview-bar" *ngIf="selectedImage()">
             <div class="image-preview-wrap">
               <img [src]="selectedImage()!" class="image-preview-thumb" alt="Selected image">
@@ -174,8 +177,22 @@
               </button>
             </div>
           </div>
+
           <div class="chat-input-area">
             <input type="file" id="chat-file-input" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden-file-input" (change)="onImageSelected($event)">
+
+            <!-- Emoji button + picker -->
+            <div class="emoji-btn-wrap">
+              <button type="button" class="attach-btn emoji-toggle" (click)="toggleEmojiPicker()" aria-label="Emoji">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+                </svg>
+              </button>
+              <div class="emoji-picker" *ngIf="showEmojiPicker()">
+                <button *ngFor="let e of emojis" type="button" class="emoji-item" (click)="insertEmoji(e)">{{e}}</button>
+              </div>
+            </div>
+
             <label for="chat-file-input" class="attach-btn" aria-label="Attach image" role="button">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
@@ -198,7 +215,7 @@
               aria-label="Send message"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="send-icon">
-                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
               </svg>
             </button>
           </div>
