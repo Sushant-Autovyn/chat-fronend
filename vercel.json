@@ -1,0 +1,5 @@
+{
+  "buildCommand": "node build-widget.js",
+  "outputDirectory": "dist/widget",
+  "installCommand": "npm install"
+}
