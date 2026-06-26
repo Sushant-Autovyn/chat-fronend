@@ -31,6 +31,8 @@ type NotificationContextValue = {
   info: (message: string) => void;
   confirm: (message: string, options?: ConfirmOptions) => Promise<boolean>;
   newTicketAlert: (ticketId: string, name: string, issue: string) => void;
+  alertCount: number;
+  clearAlertCount: () => void;
 };
 
 interface ConfirmState {
@@ -46,6 +48,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [ticketAlerts, setTicketAlerts] = useState<NewTicketAlert[]>([]);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+  const [alertCount, setAlertCount] = useState(0);
 
   const removeNotification = (id: string) => {
     setNotifications((current) => current.filter((notification) => notification.id !== id));
@@ -64,8 +67,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const newTicketAlert = useCallback((ticketId: string, name: string, issue: string) => {
     const id = `ticket-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setTicketAlerts((current) => [...current.slice(-2), { id, name, issue, ticketId }]);
+    setAlertCount(c => c + 1);
     window.setTimeout(() => removeTicketAlert(id), 9000);
   }, []);
+
+  const clearAlertCount = useCallback(() => setAlertCount(0), []);
 
   const confirm = (message: string, options?: ConfirmOptions) =>
     new Promise<boolean>((resolve) => {
@@ -87,8 +93,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       info: (message: string) => notify(message, 'info'),
       confirm,
       newTicketAlert,
+      alertCount,
+      clearAlertCount,
     }),
-    [newTicketAlert]
+    [newTicketAlert, alertCount, clearAlertCount]
   );
 
   const confirmText = confirmState?.options?.confirmText || 'Confirm';

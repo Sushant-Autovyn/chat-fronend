@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Menu, Sun, Moon, LogOut, User, ChevronRight } from 'lucide-react';
+import { useNotification } from '../notifications/NotificationProvider';
+import { Menu, Sun, Moon, LogOut, User, ChevronRight, Bell } from 'lucide-react';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -15,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
   const initials = user?.name?.substring(0, 2).toUpperCase() ?? '??';
+  const { alertCount, clearAlertCount } = useNotification();
 
   // Build breadcrumb from path
   const segments = location.pathname.split('/').filter(Boolean);
@@ -53,6 +55,20 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
 
       {/* Right */}
       <div className="flex items-center gap-2 shrink-0">
+        {/* Notification bell */}
+        <button
+          onClick={clearAlertCount}
+          className="relative rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          title="Notifications"
+        >
+          <Bell className="h-4 w-4" />
+          {alertCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white leading-none">
+              {alertCount > 9 ? '9+' : alertCount}
+            </span>
+          )}
+        </button>
+
         <button
           onClick={toggleTheme}
           className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

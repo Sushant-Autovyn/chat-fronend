@@ -1,9 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { ticketService, customerService, routingService, Ticket, Customer, Message, logActivity } from '../services/api';
 import socketService from '../socket/socketService';
 import { useNotification } from '../notifications/NotificationProvider';
-import { MessageSquare, User, Phone, Mail, FileText, Send, CheckCircle, ArrowRightLeft, UserCheck, ArrowLeft, ZoomIn } from 'lucide-react';
+import { MessageSquare, User, FileText, Send, CheckCircle, UserCheck, ArrowLeft, ZoomIn, Smile, Image } from 'lucide-react';
+
+const EMOJIS = ['😊','👋','👍','✅','❌','🙏','😔','🎉','⏳','🔄','💡','✍️','📝','🤝','💬','⚡','🔍','📋','😄','🫡'];
+
+const QUICK_PHRASES = [
+  "Hello! How can I help you today? 👋",
+  "Thank you for reaching out! 🙏",
+  "I understand your concern. Let me help.",
+  "Sorry for the inconvenience! 😔",
+  "Could you provide more details?",
+  "I'll look into this right away! ⚡",
+  "Your issue has been escalated. ✅",
+  "Please wait a moment.",
+  "Thank you for your patience!",
+  "Is there anything else I can help with?",
+];
+
+const getSuggestions = (text: string) => {
+  if (!text || text.trim().length < 2) return [];
+  const lower = text.toLowerCase();
+  return QUICK_PHRASES.filter(p => p.toLowerCase().startsWith(lower) || p.toLowerCase().includes(` ${lower}`)).slice(0, 3);
+};
 
 interface MyChatsProps {
   activeOnly?: boolean;
@@ -31,8 +52,10 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replyInputRef = useRef<HTMLInputElement>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { confirm, success: notifySuccess, error: notifyError } = useNotification();
 
   // Initial load
@@ -212,6 +235,36 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
     };
     reader.readAsDataURL(file);
     e.target.value = '';
+  };
+
+  const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) continue;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const compressed = await compressImage(ev.target?.result as string);
+          setSelectedImage(compressed);
+        };
+        reader.readAsDataURL(file);
+        break;
+      }
+    }
+  }, []);
+
+  const insertEmoji = (emoji: string) => {
+    setReplyText(t => t + emoji);
+    setShowEmojiPicker(false);
+    replyInputRef.current?.focus();
+  };
+
+  const insertPhrase = (phrase: string) => {
+    setReplyText(phrase);
+    replyInputRef.current?.focus();
   };
 
   // Send message over socket.io
@@ -496,47 +549,101 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
 
             {/* Reply input */}
             {selectedTicket.status === 'pending' && assignments[selectedTicket._id] === user?.userId ? (
-              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-border bg-card shrink-0">
+              <form onSubmit={handleSendMessage} className="border-t border-border bg-card shrink-0">
+                {/* Quick phrases (when input is short) */}
+                {replyText.length < 2 && (
+                  <div className="flex gap-1.5 px-3 pt-2.5 overflow-x-auto scrollbar-none pb-0.5">
+                    {QUICK_PHRASES.slice(0, 5).map(phrase => (
+                      <button
+                        key={phrase}
+                        type="button"
+                        onClick={() => insertPhrase(phrase)}
+                        className="whitespace-nowrap rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-100 transition-colors shrink-0"
+                      >
+                        {phrase.length > 28 ? phrase.slice(0, 28) + '…' : phrase}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Typing suggestions */}
+                {getSuggestions(replyText).length > 0 && (
+                  <div className="flex gap-1.5 px-3 pt-2 overflow-x-auto scrollbar-none">
+                    {getSuggestions(replyText).map(s => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => insertPhrase(s)}
+                        className="whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 transition-colors shrink-0"
+                      >
+                        {s.length > 32 ? s.slice(0, 32) + '…' : s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Image preview */}
                 {selectedImage && (
-                  <div className="mb-2 flex items-center gap-2">
+                  <div className="px-3 pt-2 flex items-center gap-2">
                     <div className="relative inline-block">
-                      <img src={selectedImage} alt="Preview" className="h-12 w-12 rounded-md object-cover border border-border" />
+                      <img src={selectedImage} alt="Preview" className="h-12 w-12 rounded-lg object-cover border border-border" />
                       <button
                         type="button"
                         onClick={() => setSelectedImage(null)}
-                        className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-foreground text-background rounded-full flex items-center justify-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                      </button>
+                        className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-slate-800 text-white rounded-full flex items-center justify-center text-[10px] font-bold"
+                      >✕</button>
                     </div>
-                    <span className="text-[11px] text-muted-foreground">Image attached</span>
+                    <span className="text-[11px] text-muted-foreground">Image ready to send (Ctrl+V to paste another)</span>
                   </div>
                 )}
-                <div className="flex gap-2 items-center">
+
+                <div className="flex gap-2 items-center px-3 py-2.5 relative">
                   <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={handleImageSelect} />
+
+                  {/* Emoji button */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowEmojiPicker(v => !v)}
+                      className="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                      title="Emoji"
+                    >
+                      <Smile className="h-4 w-4" />
+                    </button>
+                    {showEmojiPicker && (
+                      <div className="absolute bottom-full left-0 mb-1 p-2 bg-card border border-border rounded-xl shadow-xl z-20 grid grid-cols-5 gap-0.5 w-44">
+                        {EMOJIS.map(e => (
+                          <button key={e} type="button" onClick={() => insertEmoji(e)} className="text-base hover:bg-muted rounded p-1 text-center leading-none">
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Image attach */}
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="shrink-0 p-2 rounded-md border border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                    title="Attach image"
+                    className="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    title="Attach image (or Ctrl+V to paste)"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                    </svg>
+                    <Image className="h-4 w-4" />
                   </button>
+
                   <input
+                    ref={replyInputRef}
                     type="text"
                     value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Type a reply..."
-                    className="flex-1 px-3 py-2 bg-muted/30 border border-border rounded-md text-[12px] focus:outline-none focus:border-indigo-500 text-foreground placeholder-muted-foreground"
+                    onChange={(e) => { setReplyText(e.target.value); setShowEmojiPicker(false); }}
+                    onPaste={handlePaste}
+                    placeholder="Type a reply… or pick from quick replies above"
+                    className="flex-1 px-3 py-2 bg-muted/30 border border-border rounded-lg text-[12px] focus:outline-none focus:border-blue-500 text-foreground placeholder-muted-foreground"
                   />
                   <button
                     type="submit"
                     disabled={!replyText.trim() && !selectedImage}
-                    className="shrink-0 p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-30"
+                    className="shrink-0 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-30"
                   >
                     <Send className="h-4 w-4" />
                   </button>
