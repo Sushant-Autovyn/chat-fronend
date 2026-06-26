@@ -65,27 +65,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-[#0f1117] border-r border-white/[0.06] transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-white border-r border-slate-200 transition-transform duration-200 lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-white/[0.06] shrink-0">
+        <div className="flex h-16 items-center justify-between px-4 border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-2.5">
             <AutovynLogo />
             <div>
-              <div className="text-[15px] font-extrabold tracking-widest text-white leading-none">AUTOVYN</div>
-              <div className="text-[10px] font-semibold text-orange-400 leading-none mt-1">Automating lives!</div>
+              <div className="text-[15px] font-extrabold tracking-widest text-slate-900 leading-none">AUTOVYN</div>
+              <div className="text-[10px] font-semibold text-orange-500 leading-none mt-1">Automating lives!</div>
             </div>
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="rounded-md p-1 text-white/40 hover:text-white hover:bg-white/10 transition-colors lg:hidden"
+            className="rounded-md p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors lg:hidden"
           >
             <X className="h-4 w-4" />
           </button>
@@ -93,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-          <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+          <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
             {role === 'admin' ? 'Administration' : 'Workspace'}
           </p>
 
@@ -105,33 +105,37 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                 to={link.to}
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors group ${
+                  `flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors group ${
                     isActive
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-white/55 hover:bg-white/8 hover:text-white'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
                   }`
                 }
               >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span>{link.label}</span>
+                {({ isActive }) => (
+                  <>
+                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-600' : ''}`} />
+                    <span>{link.label}</span>
+                  </>
+                )}
               </NavLink>
             );
           })}
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-white/[0.06] p-3 shrink-0">
-          <div className="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-white/8 transition-colors group">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 font-bold text-[10px] shrink-0">
+        <div className="border-t border-slate-200 p-3 shrink-0 bg-slate-50">
+          <div className="flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-white transition-colors group border border-transparent hover:border-slate-200">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[10px] shrink-0">
               {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="block text-[12px] font-semibold text-white truncate">{user?.name}</span>
-              <span className="block text-[10px] text-white/35 capitalize leading-none mt-0.5">{role}</span>
+              <span className="block text-[12px] font-semibold text-slate-900 truncate">{user?.name}</span>
+              <span className="block text-[10px] text-slate-400 capitalize leading-none mt-0.5">{role}</span>
             </div>
             <button
               onClick={() => { logout(); navigate('/login', { replace: true }); }}
-              className="rounded-md p-1.5 text-white/30 hover:text-rose-400 hover:bg-rose-500/10 transition-colors opacity-0 group-hover:opacity-100"
+              className="rounded-md p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-colors opacity-0 group-hover:opacity-100"
               title="Logout"
             >
               <LogOut className="h-3.5 w-3.5" />

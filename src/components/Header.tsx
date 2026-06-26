@@ -71,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="flex items-center gap-2 rounded-md border border-border/60 px-2.5 py-1.5 hover:bg-muted transition-colors"
           >
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white font-bold text-[9px]">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[9px]">
               {initials}
             </div>
             <span className="hidden sm:block text-[12px] font-medium text-foreground max-w-[90px] truncate">{user?.name}</span>
