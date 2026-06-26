@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit, AfterViewChecked, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewChecked, signal, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { io } from 'socket.io-client';
 
-const API = 'https://chat-support-backend-xhfd.onrender.com';
+const API = (window as any).__SUPPORT_CHAT_API__ || 'https://chat-support-backend-xhfd.onrender.com';
 
 interface ChatMessage {
   sender: 'user' | 'support';
@@ -18,7 +18,8 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class App implements OnInit, OnDestroy, AfterViewChecked {
   private readonly TICKET_ID_KEY = 'supportChatTicketId';
@@ -270,13 +271,13 @@ export class App implements OnInit, OnDestroy, AfterViewChecked {
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      alert('Only JPEG, PNG, GIF, and WebP images are supported.');
+      this.submitError.set('Only JPEG, PNG, GIF, and WebP images are supported.');
       input.value = '';
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert('Image must be under 10MB.');
+      this.submitError.set('Image must be under 10MB.');
       input.value = '';
       return;
     }

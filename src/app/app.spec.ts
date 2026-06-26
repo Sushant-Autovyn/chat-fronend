@@ -1,5 +1,21 @@
 import { TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
+import { ɵresolveComponentResources as resolveComponentResources } from '@angular/core';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __specDir = dirname(__filename);
+
+async function resolveAngularResources() {
+  await resolveComponentResources((url: string) => {
+    const filePath = resolve(__specDir, url.replace(/^\.\//, ''));
+    let content = '';
+    try { content = readFileSync(filePath, 'utf-8'); } catch { content = ''; }
+    return Promise.resolve({ text: () => Promise.resolve(content) } as unknown as Response);
+  });
+}
 import { App } from './app';
 
 // ─── Mock: socket.io-client ────────────────────────────────────────────────
@@ -37,6 +53,7 @@ function makeFetchNetworkError() {
 }
 
 async function createComponent() {
+  await resolveAngularResources();
   await TestBed.configureTestingModule({ imports: [App] }).compileComponents();
   const fixture = TestBed.createComponent(App);
   const app    = fixture.componentInstance;
@@ -366,23 +383,23 @@ describe('App — Chatbot Widget', () => {
       expect(app.selectedImage()).toBeNull();
     });
 
-    it('alerts and returns for unsupported file type (SVG)', async () => {
+    it('sets submitError and returns for unsupported file type (SVG)', async () => {
       const { app } = await createComponent();
       app.onImageSelected(makeFileEvent('image/svg+xml', 0.1));
-      expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('JPEG, PNG, GIF'));
+      expect(app.submitError()).toMatch(/JPEG, PNG, GIF/);
       expect(app.selectedImage()).toBeNull();
     });
 
-    it('alerts for PDF (non-image)', async () => {
+    it('sets submitError for PDF (non-image)', async () => {
       const { app } = await createComponent();
       app.onImageSelected(makeFileEvent('application/pdf', 0.1));
-      expect(window.alert).toHaveBeenCalled();
+      expect(app.submitError()).not.toBeNull();
     });
 
-    it('alerts and returns for files > 10MB', async () => {
+    it('sets submitError and returns for files > 10MB', async () => {
       const { app } = await createComponent();
       app.onImageSelected(makeFileEvent('image/jpeg', 11));
-      expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('10MB'));
+      expect(app.submitError()).toMatch(/10MB/);
       expect(app.selectedImage()).toBeNull();
     });
 
@@ -547,11 +564,11 @@ describe('App — Chatbot Widget', () => {
   describe('Socket receive_message — deduplication', () => {
     async function setupSocket(app: App) {
       (app as any).ticketId.set('ticket-xyz');
-      (app as any).socket = mockSocket;
-      // Simulate socket connect so handlers are registered
-      const connectSocket = (app as any).connectSocket.bind(app);
-      // Manually register handlers via mock
+      // Chat history must return an array, not an object
+      global.fetch = makeFetchOk([]);
       (app as any).connectSocket('ticket-xyz');
+      // Wait for the async chat-history fetch to complete and set messages to []
+      await new Promise(r => setTimeout(r, 20));
     }
 
     it('ignores messages for a different ticketId', async () => {
