@@ -14,11 +14,11 @@ const AgentLayout: React.FC = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const offNewTicket = socketService.onNewTicket((ticket: any) => {
-      newTicketAlert(ticket._id || ticket.id, ticket.name || 'Unknown', ticket.issue || 'New support request');
+    const offNewTicket = socketService.onNewTicket((ticket) => {
+      newTicketAlert(ticket._id, ticket.name || 'Unknown', ticket.issue || 'New support request');
     });
 
-    const offMessage = socketService.onReceiveMessage((message: any) => {
+    const offMessage = socketService.onReceiveMessage((message) => {
       // MyChats handles notifications when the agent is on that page
       if (location.pathname.includes('/my-chats')) return;
       if (message.sender !== 'user') return;

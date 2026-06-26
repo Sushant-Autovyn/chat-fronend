@@ -68,7 +68,7 @@ const LiveChats: React.FC = () => {
     });
 
     // 2. Listen for message updates in real-time
-    const removeReceiveMessageListener = socketService.onReceiveMessage((message: any) => {
+    const removeReceiveMessageListener = socketService.onReceiveMessage((message) => {
       // Update selected ticket messages if active
       setSelectedTicket(current => {
         if (current && current._id === message.ticketId) {

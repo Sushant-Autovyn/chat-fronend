@@ -39,6 +39,19 @@ backendApi.interceptors.response.use(
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export interface EnterpriseSettings {
+  responseTime?: number;
+  maxChats?: number;
+  welcomeMessage?: string;
+  [key: string]: unknown;
+}
+
+export interface RoutingConfig {
+  rule: 'round_robin' | 'least_busy' | 'manual';
+  defaultDepartment: string;
+  [key: string]: unknown;
+}
+
 export interface Message {
   _id?: string;
   sender: 'user' | 'support';
@@ -300,7 +313,7 @@ export const customerService = {
 
 export const settingsService = {
   getSettings: () => JSON.parse(localStorage.getItem('enterprise_settings') || '{}'),
-  updateSettings: (settings: any) => {
+  updateSettings: (settings: EnterpriseSettings) => {
     localStorage.setItem('enterprise_settings', JSON.stringify(settings));
     logActivity('System settings updated', 'System Administrator', 'admin');
     return settings;
@@ -312,7 +325,7 @@ export const settingsService = {
 export const routingService = {
   getConfig: () => JSON.parse(localStorage.getItem('enterprise_routing') || '{"rule":"round_robin","defaultDepartment":"Support"}'),
 
-  updateConfig: (config: any) => {
+  updateConfig: (config: RoutingConfig) => {
     localStorage.setItem('enterprise_routing', JSON.stringify(config));
     logActivity(`Chat routing rule changed to: ${config.rule}`, 'System Administrator', 'admin');
     return config;

@@ -105,8 +105,8 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
     });
 
     // 2. Listen for messages in real-time
-    const removeReceiveMessageListener = socketService.onReceiveMessage((message: any) => {
-      const isDuplicate = (a: any, b: any) =>
+    const removeReceiveMessageListener = socketService.onReceiveMessage((message) => {
+      const isDuplicate = (a: Message, b: Message) =>
         a.createdAt === b.createdAt && a.text === b.text && a.imageUrl === b.imageUrl;
 
       const currentSelected = selectedTicketRef.current;

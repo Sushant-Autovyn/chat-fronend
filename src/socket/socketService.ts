@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import type { Ticket, Message } from '../services/api';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://chat-support-backend-xhfd.onrender.com';
 
@@ -104,13 +105,13 @@ class SocketService {
     return () => this.socket?.off('disconnect', callback);
   }
 
-  onNewTicket(callback: (ticket: any) => void): () => void {
+  onNewTicket(callback: (ticket: Ticket) => void): () => void {
     if (!this.socket) this.connect();
     this.socket?.on('new_ticket', callback);
     return () => this.socket?.off('new_ticket', callback);
   }
 
-  onReceiveMessage(callback: (message: any) => void): () => void {
+  onReceiveMessage(callback: (message: Message & { ticketId: string }) => void): () => void {
     if (!this.socket) this.connect();
     this.socket?.on('receive_message', callback);
     return () => this.socket?.off('receive_message', callback);

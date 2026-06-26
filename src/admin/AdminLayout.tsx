@@ -11,8 +11,8 @@ const AdminLayout: React.FC = () => {
   const { newTicketAlert } = useNotification();
 
   useEffect(() => {
-    const off = socketService.onNewTicket((ticket: any) => {
-      newTicketAlert(ticket._id || ticket.id, ticket.name || 'Unknown', ticket.issue || 'New support request');
+    const off = socketService.onNewTicket((ticket) => {
+      newTicketAlert(ticket._id, ticket.name || 'Unknown', ticket.issue || 'New support request');
     });
     return off;
   }, [newTicketAlert]);
