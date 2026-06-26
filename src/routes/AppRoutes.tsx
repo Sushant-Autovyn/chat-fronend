@@ -43,7 +43,6 @@ const AppRoutes: React.FC = () => {
         <Route path="customers" element={<CustomerManagement />} />
         <Route path="departments" element={<DepartmentManagement />} />
         <Route path="analytics" element={<Analytics />} />
-        <Route path="reports" element={<Analytics />} /> {/* Reuses analytics for report summaries */}
       </Route>
 
       {/* Agent Panel (Protected & RBAC-guarded) */}

@@ -53,19 +53,16 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replyInputRef = useRef<HTMLInputElement>(null);
+  const selectedTicketRef = useRef<Ticket | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const { confirm, success: notifySuccess, error: notifyError } = useNotification();
+  const { confirm, success: notifySuccess, error: notifyError, info: notifyInfo } = useNotification();
 
   // Initial load
   useEffect(() => {
     loadWorkspaceData();
     socketService.connect();
-
-    return () => {
-      socketService.disconnect();
-    };
   }, []);
 
   const loadWorkspaceData = async () => {
@@ -112,15 +109,19 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
       const isDuplicate = (a: any, b: any) =>
         a.createdAt === b.createdAt && a.text === b.text && a.imageUrl === b.imageUrl;
 
-      setSelectedTicket(current => {
-        if (current && current._id === message.ticketId) {
-          setMessages(prev => {
-            if (prev.some(m => isDuplicate(m, message))) return prev;
-            return [...prev, message];
-          });
+      const currentSelected = selectedTicketRef.current;
+      if (currentSelected && currentSelected._id === message.ticketId) {
+        setMessages(prev => {
+          if (prev.some(m => isDuplicate(m, message))) return prev;
+          return [...prev, message];
+        });
+      } else if (message.sender === 'user') {
+        // Notify agent of message on a ticket they're not currently viewing
+        const assignments = routingService.getAssignments();
+        if (assignments[message.ticketId] === user?.userId) {
+          notifyInfo(`New message from customer on ticket #${String(message.ticketId).slice(-6)}`);
         }
-        return current;
-      });
+      }
 
       setTickets(prev => prev.map(t => {
         if (t._id === message.ticketId) {
@@ -159,6 +160,7 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
 
   // Select a ticket to chat
   const handleSelectTicket = async (ticket: Ticket, shouldShowChatOnMobile = true) => {
+    selectedTicketRef.current = ticket;
     setSelectedTicket(ticket);
     if (shouldShowChatOnMobile) {
       setShowChat(true);
@@ -209,7 +211,7 @@ const MyChats: React.FC<MyChatsProps> = ({ activeOnly = false }) => {
   // Compress image using canvas before sending
   const compressImage = (dataUrl: string, maxWidth = 1000, quality = 0.72): Promise<string> =>
     new Promise(resolve => {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         let { width, height } = img;
         if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }

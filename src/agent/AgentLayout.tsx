@@ -3,19 +3,36 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { useNotification } from '../notifications/NotificationProvider';
+import { useAuth } from '../auth/AuthContext';
+import { routingService } from '../services/api';
 import socketService from '../socket/socketService';
 
 const AgentLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const { newTicketAlert } = useNotification();
+  const { newTicketAlert, info: notifyInfo } = useNotification();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const off = socketService.onNewTicket((ticket: any) => {
+    const offNewTicket = socketService.onNewTicket((ticket: any) => {
       newTicketAlert(ticket._id || ticket.id, ticket.name || 'Unknown', ticket.issue || 'New support request');
     });
-    return off;
-  }, [newTicketAlert]);
+
+    const offMessage = socketService.onReceiveMessage((message: any) => {
+      // MyChats handles notifications when the agent is on that page
+      if (location.pathname.includes('/my-chats')) return;
+      if (message.sender !== 'user') return;
+      const assignments = routingService.getAssignments();
+      if (assignments[message.ticketId] === user?.userId) {
+        notifyInfo(`New message on ticket #${String(message.ticketId).slice(-6)}`);
+      }
+    });
+
+    return () => {
+      offNewTicket();
+      offMessage();
+    };
+  }, [newTicketAlert, notifyInfo, user?.userId, location.pathname]);
 
   // Map pathnames to friendly titles for agents
   const getPageTitle = () => {

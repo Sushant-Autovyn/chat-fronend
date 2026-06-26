@@ -11,7 +11,6 @@ import {
   LogOut,
   MessageSquare,
   User,
-  FileText,
   X,
 } from 'lucide-react';
 
@@ -47,7 +46,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { to: '/admin/agents', label: 'Agents', icon: Users },
     { to: '/admin/customers', label: 'Customers', icon: Contact },
     { to: '/admin/departments', label: 'Departments', icon: Building },
-    { to: '/admin/reports', label: 'Reports', icon: FileText },
   ];
 
   const agentLinks = [
